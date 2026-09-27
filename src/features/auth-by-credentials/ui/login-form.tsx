@@ -16,19 +16,36 @@ export function LoginForm() {
     setError(null);
     setIsSubmitting(true);
 
-    const result = await signIn("credentials", {
-      email: String(formData.get("email") ?? ""),
-      password: String(formData.get("password") ?? ""),
-      redirect: false,
-    });
+    try {
+      const result = await signIn("credentials", {
+        email: String(formData.get("email") ?? ""),
+        password: String(formData.get("password") ?? ""),
+        redirect: false,
+      });
 
-    if (result?.error) {
-      setError("Invalid email or password");
+      if (result?.error) {
+        // Only "CredentialsSignin" means bad email/password. Any other
+        // truthy error (e.g. Auth.js's Configuration/CallbackRouteError from
+        // a missing AUTH_SECRET or an unreachable database) is an
+        // infrastructure failure, not a credentials problem — don't tell the
+        // user their password is wrong when it isn't.
+        setError(
+          result.error === "CredentialsSignin"
+            ? "Invalid email or password"
+            : "Something went wrong. Please try again."
+        );
+        return;
+      }
+
+      router.push("/");
+    } catch {
+      // signIn itself can reject (network failure, etc.), not just resolve
+      // with an error — without this catch the button would be stuck on
+      // "Signing in..." forever.
+      setError("Something went wrong. Please try again.");
+    } finally {
       setIsSubmitting(false);
-      return;
     }
-
-    router.push("/");
   }
 
   return (

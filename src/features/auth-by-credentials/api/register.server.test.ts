@@ -29,4 +29,43 @@ describe("registerWithCredentials", () => {
     const result = await registerWithCredentials({ email: "not-an-email", password: "x" }, db);
     expect(result.ok).toBe(false);
   });
+
+  it("returns a generic error instead of throwing when the email lookup fails", async () => {
+    const throwingDb = {
+      select: () => ({
+        from: () => ({
+          where: () => Promise.reject(new Error("connection refused")),
+        }),
+      }),
+      insert: () => {
+        throw new Error("insert should not be reached");
+      },
+    } as unknown as Parameters<typeof registerWithCredentials>[1];
+
+    const result = await registerWithCredentials(
+      { name: "Jane", email: "jane@example.com", password: "s3cret-password" },
+      throwingDb
+    );
+
+    expect(result).toEqual({ ok: false, error: "Something went wrong. Please try again." });
+  });
+
+  it("returns a generic error instead of throwing when creating the user fails", async () => {
+    const db = await createTestDb();
+    const failingInsertDb = {
+      select: (...args: Parameters<typeof db.select>) => db.select(...args),
+      insert: () => ({
+        values: () => ({
+          returning: () => Promise.reject(new Error("unique constraint violation")),
+        }),
+      }),
+    } as unknown as Parameters<typeof registerWithCredentials>[1];
+
+    const result = await registerWithCredentials(
+      { name: "Jane", email: "jane@example.com", password: "s3cret-password" },
+      failingInsertDb
+    );
+
+    expect(result).toEqual({ ok: false, error: "Something went wrong. Please try again." });
+  });
 });

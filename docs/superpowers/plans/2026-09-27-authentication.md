@@ -6,7 +6,7 @@
 
 **Architecture:** Feature-Sliced Design on Next.js App Router (`app/` is routing-only; all logic lives under `src/` in `_app → _pages → widgets → features → entities → shared` layers, enforced by Steiger). Auth.js (NextAuth v5) issues JWT sessions; the Drizzle adapter persists users/accounts in Postgres so Google OAuth account linking works. Credentials `authorize()` and all app-authored DB queries go through Drizzle directly.
 
-**Tech Stack:** Next.js 15 (App Router) + TypeScript + React 19, Tailwind v4 + shadcn/ui ("new-york", zinc base), Auth.js v5 (`next-auth@5`) + `@auth/drizzle-adapter`, Drizzle ORM + Postgres (Neon via `@neondatabase/serverless`, HTTP driver), `@electric-sql/pglite` for tests, Zod, `bcryptjs`, Vitest + React Testing Library, Playwright for the e2e smoke test.
+**Tech Stack:** Next.js 15 (App Router) + TypeScript + React 19, Tailwind v4 + shadcn/ui (zinc base; style originally planned as "new-york" — see Task 3 note, the installed CLI no longer supports that preset and the project uses its `radix-nova` preset instead), Auth.js v5 (`next-auth@5`) + `@auth/drizzle-adapter`, Drizzle ORM + Postgres (Neon via `@neondatabase/serverless`, HTTP driver), `@electric-sql/pglite` for tests, Zod, `bcryptjs`, Vitest + React Testing Library, Playwright for the e2e smoke test.
 
 **Spec:**
 - `docs/superpowers/specs/2026-09-27-vocab-learning-app-design.md` (sections 1-2, 3 `users` table, 4.1, 5, 6)
@@ -224,6 +224,14 @@ git commit -m "feat: set up FSD path aliases and Steiger layer linting"
 ```bash
 npx shadcn@latest init --yes --base-color zinc --style new-york
 ```
+
+> **Note (post-execution):** the installed shadcn CLI (4.21.0) removed the
+> `--style new-york` preset entirely by the time this task ran — the CLI's
+> style/base-color system was replaced with a different set of presets, none
+> of which is called "new-york". `components.json` records the CLI's
+> `radix-nova` preset instead; this is accepted as the project's actual
+> style going forward (see the design-system doc §1). The design tokens
+> applied in Step 4 below are unaffected.
 
 - [ ] **Step 2: Point shadcn's aliases at the FSD shared layer**
 

@@ -51,4 +51,40 @@ describe("RegisterForm", () => {
 
     expect(push).toHaveBeenCalledWith("/");
   });
+
+  it("shows a generic error and re-enables the button when registerWithCredentials rejects", async () => {
+    registerWithCredentials.mockRejectedValueOnce(new Error("network down"));
+    render(<RegisterForm />);
+
+    await userEvent.type(screen.getByLabelText("Name"), "Jane");
+    await userEvent.type(screen.getByLabelText("Email"), "jane@example.com");
+    await userEvent.type(screen.getByLabelText("Password"), "s3cret-password");
+    const submitButton = screen.getByRole("button", { name: "Create account" });
+    await userEvent.click(submitButton);
+
+    expect(
+      await screen.findByText("Something went wrong. Please try again.")
+    ).toBeInTheDocument();
+    expect(submitButton).not.toBeDisabled();
+    expect(submitButton).toHaveTextContent("Create account");
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it("shows a generic error and re-enables the button when signIn rejects after a successful registration", async () => {
+    registerWithCredentials.mockResolvedValueOnce({ ok: true });
+    signIn.mockRejectedValueOnce(new Error("network down"));
+    render(<RegisterForm />);
+
+    await userEvent.type(screen.getByLabelText("Name"), "Jane");
+    await userEvent.type(screen.getByLabelText("Email"), "jane@example.com");
+    await userEvent.type(screen.getByLabelText("Password"), "s3cret-password");
+    const submitButton = screen.getByRole("button", { name: "Create account" });
+    await userEvent.click(submitButton);
+
+    expect(
+      await screen.findByText("Something went wrong. Please try again.")
+    ).toBeInTheDocument();
+    expect(submitButton).not.toBeDisabled();
+    expect(push).not.toHaveBeenCalled();
+  });
 });

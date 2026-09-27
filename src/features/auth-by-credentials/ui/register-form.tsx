@@ -23,26 +23,33 @@ export function RegisterForm() {
       password: String(formData.get("password") ?? ""),
     };
 
-    const result = await registerWithCredentials(input);
-    if (!result.ok) {
-      setError(result.error);
+    try {
+      const result = await registerWithCredentials(input);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+
+      const signInResult = await signIn("credentials", {
+        email: input.email,
+        password: input.password,
+        redirect: false,
+      });
+
+      if (signInResult?.error) {
+        setError("Account created. Please sign in.");
+        return;
+      }
+
+      router.push("/");
+    } catch {
+      // registerWithCredentials/signIn can reject outright (network failure,
+      // etc.), not just resolve with an error — without this catch the
+      // button would be stuck on "Creating account..." forever.
+      setError("Something went wrong. Please try again.");
+    } finally {
       setIsSubmitting(false);
-      return;
     }
-
-    const signInResult = await signIn("credentials", {
-      email: input.email,
-      password: input.password,
-      redirect: false,
-    });
-
-    if (signInResult?.error) {
-      setError("Account created. Please sign in.");
-      setIsSubmitting(false);
-      return;
-    }
-
-    router.push("/");
   }
 
   return (

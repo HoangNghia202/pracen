@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
 
@@ -8,6 +8,13 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./vitest.setup.ts"],
     globals: true,
+    // Playwright's e2e suite lives under `e2e/` and calls `test.describe()`
+    // from `@playwright/test`, which throws when collected by Vitest's own
+    // test runner ("Playwright Test did not expect test.describe() to be
+    // called here"). Vitest's default `exclude` doesn't know about this
+    // project's `e2e/` directory, so add it explicitly — Playwright's own
+    // config (`playwright.config.ts`) is what actually runs those files.
+    exclude: [...configDefaults.exclude, "e2e/**"],
     server: {
       // `next-auth` is an ESM package whose `lib/env.js` imports the bare
       // specifier "next/server" without a file extension. Node's native ESM

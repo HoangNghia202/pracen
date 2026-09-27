@@ -20,8 +20,16 @@ instead of a default AI-purple glow.
 
 ## 1. Foundation
 
-- **shadcn/ui**, style **"new-york"**, base color **zinc**, Tailwind v4 (CSS-based
-  theme, no `tailwind.config.js` needed for tokens).
+- **shadcn/ui**, base color **zinc**, Tailwind v4 (CSS-based theme, no
+  `tailwind.config.js` needed for tokens).
+- **Style:** originally specified as **"new-york"** here, but the shadcn CLI
+  has since replaced the old `style`/`baseColor` system with a set of
+  presets, and `new-york` is no longer one of the available options — there
+  is no supported way to pin it anymore. This project uses whatever the
+  installed CLI (`shadcn@4.21.0` at last check) produces under its
+  `radix-nova` preset instead, recorded as-is in `components.json`. The
+  design tokens in §2 below are unaffected by this and already match exactly
+  regardless of which style preset generated the primitives.
 - Single accent color across the whole app (see §2) — every primary button,
   active nav item, focus ring, and link uses it. No second accent introduced
   later for "variety."
@@ -31,7 +39,7 @@ instead of a default AI-purple glow.
   per component.
 
 ```bash
-npx shadcn@latest init   # style: new-york, base color: zinc, css variables: yes
+npx shadcn@latest init   # base color: zinc, css variables: yes (style is a CLI-chosen preset — see note above)
 npx shadcn@latest add button card dialog input label badge table skeleton \
   toast sonner dropdown-menu avatar separator sidebar form
 ```

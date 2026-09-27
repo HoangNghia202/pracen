@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Vocab
 
-## Getting Started
+A personal vocabulary learning app. This is the Auth module slice: email/password
+registration and login, Google OAuth, session handling, route protection, and
+logout, on Next.js 15 (App Router).
 
-First, run the development server:
+## Setup
+
+1. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+2. **Environment variables**
+
+   Copy `.env.example` to `.env.local` and fill in:
+
+   | Variable | Where to get it |
+   | --- | --- |
+   | `DATABASE_URL` | A Postgres connection string. A free [Neon](https://neon.tech) database works — create a project and copy its connection string (the pooled/HTTP-compatible one, since this project uses the Neon HTTP driver). |
+   | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Create an OAuth 2.0 Client ID in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials) (type: Web application). Add `http://localhost:3000/api/auth/callback/google` as an authorized redirect URI for local dev. |
+   | `AUTH_SECRET` | Generate one with `npx auth secret`. |
+
+   All four are required — the app fails fast with an actionable error at startup if `DATABASE_URL` is missing (see `src/shared/config/env.ts`), and Auth.js needs the rest to run at all.
+
+3. **Provision the database schema**
+
+   ```bash
+   npx drizzle-kit push
+   ```
+
+   This applies the Drizzle schema (`src/shared/api/db/schema.ts`: `user`, `account`, `session`, `verificationToken`) to the database in `DATABASE_URL`.
+
+4. **Run the dev server**
+
+   ```bash
+   npm run dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000). Unauthenticated visitors are redirected to `/login` for any route.
+
+## Testing and linting
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm test         # Vitest unit/component tests (uses an in-memory PGlite database, no external services needed)
+npm run lint:fsd # Steiger — enforces the Feature-Sliced Design layer-import direction
+npx tsc --noEmit # TypeScript check
+npm run e2e      # Playwright end-to-end smoke test — needs a real DATABASE_URL (see above) and starts the dev server itself
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Architecture: Feature-Sliced Design
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Application logic lives under `src/`, organized into layers, each of which may
+only import from layers to its right:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+_app → _pages → widgets → features → entities → shared
+```
 
-## Learn More
+- **`_app`** — app-wide wiring (Auth.js config, middleware logic).
+- **`_pages`** — one folder per route, thin and mostly presentational.
+- **`widgets`** — composed UI blocks used across pages (e.g. the header).
+- **`features`** — user-facing actions (register, login, Google sign-in, logout).
+- **`entities`** — domain objects (e.g. `user`) and their data access.
+- **`shared`** — reusable, business-logic-free code: UI primitives (`shared/ui`,
+  shadcn-generated), the DB client and schema (`shared/api`), config
+  (`shared/config`), and other cross-cutting helpers (`shared/lib`).
 
-To learn more about Next.js, take a look at the following resources:
+The `_app`/`_pages` names are prefixed with an underscore because `app` and
+`pages` are reserved by Next.js's own routing conventions — the actual
+Next.js `app/` directory stays routing-only (layouts, route handlers, thin
+re-exports of `_pages` components) and contains no business logic itself.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Steiger (`npm run lint:fsd`) enforces the one-directional import rule above,
+so a lower layer can never reach back into a higher one.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+One layer-specific rule worth knowing: `@/shared/testing` (PGlite-backed test
+database helpers) is kept separate from `@/shared/api` (the production DB
+client) because `middleware.ts` runs in the Edge Runtime and transitively
+imports `@/shared/api` via `auth()` — if a Node-only test dependency were
+reachable from that barrel, the Edge build would fail to compile even though
+nothing in it runs at runtime. Only import `@/shared/testing` from test files.

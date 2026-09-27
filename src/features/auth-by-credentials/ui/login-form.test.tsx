@@ -37,4 +37,36 @@ describe("LoginForm", () => {
 
     expect(push).toHaveBeenCalledWith("/");
   });
+
+  it("shows a generic error for a non-credentials signIn error (e.g. misconfiguration)", async () => {
+    signIn.mockResolvedValueOnce({ error: "Configuration" });
+    render(<LoginForm />);
+
+    await userEvent.type(screen.getByLabelText("Email"), "jane@example.com");
+    await userEvent.type(screen.getByLabelText("Password"), "correct-password");
+    await userEvent.click(screen.getByRole("button", { name: "Sign in" }));
+
+    expect(
+      await screen.findByText("Something went wrong. Please try again.")
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Invalid email or password")).not.toBeInTheDocument();
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it("shows a generic error and re-enables the button when signIn rejects", async () => {
+    signIn.mockRejectedValueOnce(new Error("network down"));
+    render(<LoginForm />);
+
+    await userEvent.type(screen.getByLabelText("Email"), "jane@example.com");
+    await userEvent.type(screen.getByLabelText("Password"), "correct-password");
+    const submitButton = screen.getByRole("button", { name: "Sign in" });
+    await userEvent.click(submitButton);
+
+    expect(
+      await screen.findByText("Something went wrong. Please try again.")
+    ).toBeInTheDocument();
+    expect(submitButton).not.toBeDisabled();
+    expect(submitButton).toHaveTextContent("Sign in");
+    expect(push).not.toHaveBeenCalled();
+  });
 });

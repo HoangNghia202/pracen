@@ -25,16 +25,22 @@ export async function registerWithCredentials(
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const existing = await getUserByEmail(parsed.data.email, dbInstance);
-  if (existing) {
-    return { ok: false, error: "An account with this email already exists" };
+  try {
+    const existing = await getUserByEmail(parsed.data.email, dbInstance);
+    if (existing) {
+      return { ok: false, error: "An account with this email already exists" };
+    }
+
+    const passwordHash = await hashPassword(parsed.data.password);
+    await createUser(
+      { email: parsed.data.email, name: parsed.data.name, passwordHash },
+      dbInstance
+    );
+
+    return { ok: true };
+  } catch {
+    // Don't leak internal error details (DB outage, connection exhaustion,
+    // driver errors) to the client — just fail closed with a generic message.
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
-
-  const passwordHash = await hashPassword(parsed.data.password);
-  await createUser(
-    { email: parsed.data.email, name: parsed.data.name, passwordHash },
-    dbInstance
-  );
-
-  return { ok: true };
 }
