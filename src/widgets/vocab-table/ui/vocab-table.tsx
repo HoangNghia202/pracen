@@ -1,6 +1,8 @@
 import { Notebook } from "@phosphor-icons/react/dist/ssr";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import { PlayWordAudioButton } from "@/features/play-word-audio";
+import { EditVocabItemDialog } from "@/features/edit-vocab-item";
+import { DeleteVocabItemButton } from "@/features/delete-vocab-item";
 import type { VocabItem } from "@/entities/vocab-item";
 
 export function VocabTable({ items }: { items: VocabItem[] }) {
@@ -21,7 +23,7 @@ export function VocabTable({ items }: { items: VocabItem[] }) {
           <TableHead>Meaning</TableHead>
           <TableHead>Example</TableHead>
           <TableHead>Part of speech</TableHead>
-          <TableHead className="w-10" />
+          <TableHead className="w-28" />
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -31,8 +33,10 @@ export function VocabTable({ items }: { items: VocabItem[] }) {
             <TableCell>{item.meaning}</TableCell>
             <TableCell className="text-muted-foreground">{item.example ?? "—"}</TableCell>
             <TableCell className="text-muted-foreground">{item.partOfSpeech ?? "—"}</TableCell>
-            <TableCell>
+            <TableCell className="flex items-center gap-1">
               <PlayWordAudioButton word={item.word} />
+              <EditVocabItemDialog item={item} />
+              <DeleteVocabItemButton itemId={item.id} word={item.word} />
             </TableCell>
           </TableRow>
         ))}
