@@ -3,6 +3,7 @@ import { vi } from "vitest";
 import { Header } from "./header";
 
 vi.mock("next-auth/react", () => ({ signOut: vi.fn() }));
+vi.mock("next/navigation", () => ({ usePathname: () => "/" }));
 
 it("shows the signed-in user's name", () => {
   render(<Header user={{ name: "Jane", email: "jane@example.com" }} />);
