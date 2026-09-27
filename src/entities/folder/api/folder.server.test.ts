@@ -55,10 +55,10 @@ describe("folder entity", () => {
     const ownerId = await makeUser(db, "owner@example.com");
     const first = await createFolder({ userId: ownerId, name: "First" }, db);
     // Delay to ensure distinct timestamps for sorting
-    await new Promise((r) => setTimeout(r, 10));
+    await new Promise((r) => setTimeout(r, 50));
     await createFolder({ userId: ownerId, name: "Second" }, db);
     // Delay to ensure touch timestamp is distinct
-    await new Promise((r) => setTimeout(r, 10));
+    await new Promise((r) => setTimeout(r, 50));
     await touchFolder(first.id, db);
 
     const byEdited = await listFoldersByUser(ownerId, { sort: "recently-edited" }, db);
@@ -94,4 +94,5 @@ describe("folder entity", () => {
     expect(deleted).toBe(true);
     expect(await getFolderById(folder.id, ownerId, db)).toBeNull();
   });
+
 });
