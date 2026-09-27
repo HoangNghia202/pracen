@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { RenameFolderDialog } from "@/features/rename-folder";
 import { DeleteFolderButton } from "@/features/delete-folder";
+import { AddVocabDialog } from "@/features/add-vocab-manual";
 import { VocabTable } from "@/widgets/vocab-table";
 import type { Folder } from "@/entities/folder";
 import type { VocabItem } from "@/entities/vocab-item";
@@ -24,6 +25,9 @@ export function FolderDetailPage({ folder, items }: FolderDetailPageProps) {
           <RenameFolderDialog folderId={folder.id} currentName={folder.name} />
           <DeleteFolderButton folderId={folder.id} folderName={folder.name} />
         </div>
+      </div>
+      <div>
+        <AddVocabDialog folderId={folder.id} />
       </div>
       <VocabTable items={items} />
     </div>
