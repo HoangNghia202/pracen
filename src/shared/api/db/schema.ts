@@ -51,3 +51,25 @@ export const verificationTokens = pgTable(
     compositePk: primaryKey({ columns: [vt.identifier, vt.token] }),
   })
 );
+
+export const folders = pgTable("folder", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
+});
+
+export const vocabItems = pgTable("vocabItem", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  folderId: text("folderId")
+    .notNull()
+    .references(() => folders.id, { onDelete: "cascade" }),
+  word: text("word").notNull(),
+  meaning: text("meaning").notNull(),
+  example: text("example"),
+  partOfSpeech: text("partOfSpeech"),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+});
