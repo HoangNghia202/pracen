@@ -1,7 +1,7 @@
 "use server";
 
 import { editVocabItemSchema } from "../model/schema";
-import { getFolderById } from "@/entities/folder";
+import { getFolderById, touchFolder } from "@/entities/folder";
 import { getVocabItemById, updateVocabItem } from "@/entities/vocab-item";
 import { auth } from "@/_app/api-routes/auth";
 import { db as defaultDb } from "@/shared/api";
@@ -46,6 +46,7 @@ export async function editVocabItemAction(
       },
       dbInstance
     );
+    await touchFolder(item.folderId, dbInstance);
     safeRevalidatePath(`/library/${item.folderId}`);
     return { ok: true };
   } catch {

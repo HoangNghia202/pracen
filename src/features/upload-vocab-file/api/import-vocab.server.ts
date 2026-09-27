@@ -5,6 +5,7 @@ import { createVocabItems } from "@/entities/vocab-item";
 import { auth } from "@/_app/api-routes/auth";
 import { db as defaultDb } from "@/shared/api";
 import { safeRevalidatePath } from "@/shared/lib/safe-revalidate-path";
+import { importVocabRowsSchema } from "../model/schema";
 import type { ParsedVocabRow } from "../model/parse-vocab-file";
 
 export type ImportVocabResult = { ok: true; count: number } | { ok: false; error: string };
@@ -21,8 +22,9 @@ export async function importVocabAction(
     return { ok: false, error: "You must be signed in." };
   }
 
-  if (rows.length === 0) {
-    return { ok: false, error: "No valid rows to import" };
+  const parsed = importVocabRowsSchema.safeParse(rows);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
   try {
@@ -31,7 +33,7 @@ export async function importVocabAction(
       return { ok: false, error: "Folder not found" };
     }
 
-    const created = await createVocabItems(folderId, rows, dbInstance);
+    const created = await createVocabItems(folderId, parsed.data, dbInstance);
     await touchFolder(folderId, dbInstance);
     safeRevalidatePath(`/library/${folderId}`);
     return { ok: true, count: created.length };

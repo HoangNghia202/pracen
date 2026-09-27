@@ -1,7 +1,7 @@
 import { createTestDb } from "@/shared/testing";
 import { vi } from "vitest";
 import { auth } from "@/_app/api-routes/auth";
-import { createFolder } from "@/entities/folder";
+import { createFolder, getFolderById } from "@/entities/folder";
 import { createUser } from "@/entities/user";
 import { createVocabItem, getVocabItemById } from "@/entities/vocab-item";
 import { deleteVocabItemAction } from "./delete-vocab-item.server";
@@ -58,5 +58,23 @@ describe("deleteVocabItemAction", () => {
     const wrongOwnerResult = await deleteVocabItemAction(item.id, db);
 
     expect(nonexistentResult).toEqual(wrongOwnerResult);
+  });
+
+  it("touches the folder's updatedAt so it surfaces in recently-edited sort", async () => {
+    const db = await createTestDb();
+    const user = await createUser({ email: "owner@example.com", passwordHash: "hash" }, db);
+    const folder = await createFolder({ userId: user.id, name: "Animals" }, db);
+    const item = await createVocabItem({ folderId: folder.id, word: "Dog", meaning: "..." }, db);
+    vi.mocked(auth).mockResolvedValue({ user: { id: user.id } } as never);
+
+    const before = await getFolderById(folder.id, user.id, db);
+    // Delay to ensure the touch timestamp is distinct
+    await new Promise((r) => setTimeout(r, 500));
+
+    const result = await deleteVocabItemAction(item.id, db);
+
+    expect(result).toMatchObject({ ok: true });
+    const after = await getFolderById(folder.id, user.id, db);
+    expect(after!.updatedAt.getTime()).toBeGreaterThan(before!.updatedAt.getTime());
   });
 });

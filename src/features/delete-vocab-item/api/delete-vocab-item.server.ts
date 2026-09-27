@@ -1,6 +1,6 @@
 "use server";
 
-import { getFolderById } from "@/entities/folder";
+import { getFolderById, touchFolder } from "@/entities/folder";
 import { deleteVocabItem, getVocabItemById } from "@/entities/vocab-item";
 import { auth } from "@/_app/api-routes/auth";
 import { db as defaultDb } from "@/shared/api";
@@ -30,6 +30,7 @@ export async function deleteVocabItemAction(
     }
 
     await deleteVocabItem(itemId, dbInstance);
+    await touchFolder(item.folderId, dbInstance);
     safeRevalidatePath(`/library/${item.folderId}`);
     return { ok: true };
   } catch {

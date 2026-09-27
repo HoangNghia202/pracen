@@ -51,4 +51,38 @@ describe("importVocabAction", () => {
 
     expect(result).toMatchObject({ ok: false });
   });
+
+  it("rejects rows with an empty word or meaning instead of inserting them", async () => {
+    const db = await createTestDb();
+    const user = await createUser({ email: "owner@example.com", passwordHash: "hash" }, db);
+    const folder = await createFolder({ userId: user.id, name: "Animals" }, db);
+    vi.mocked(auth).mockResolvedValue({ user: { id: user.id } } as never);
+
+    const result = await importVocabAction(
+      folder.id,
+      [
+        { word: "Dog", meaning: "A domesticated canine" },
+        { word: "", meaning: "Missing a word" },
+      ],
+      db
+    );
+
+    expect(result).toMatchObject({ ok: false });
+    expect(await listVocabItemsByFolder(folder.id, db)).toEqual([]);
+  });
+
+  it("rejects a non-array payload without throwing", async () => {
+    const db = await createTestDb();
+    const user = await createUser({ email: "owner@example.com", passwordHash: "hash" }, db);
+    const folder = await createFolder({ userId: user.id, name: "Animals" }, db);
+    vi.mocked(auth).mockResolvedValue({ user: { id: user.id } } as never);
+
+    const result = await importVocabAction(
+      folder.id,
+      "not-an-array" as unknown as never,
+      db
+    );
+
+    expect(result).toMatchObject({ ok: false });
+  });
 });

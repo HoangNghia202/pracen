@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trash } from "@phosphor-icons/react";
+import { toast } from "sonner";
 import { Button } from "@/shared/ui/button";
 import { deleteVocabItemAction } from "../api/delete-vocab-item.server";
 
@@ -16,6 +17,8 @@ export function DeleteVocabItemButton({ itemId, word }: { itemId: string; word: 
       const result = await deleteVocabItemAction(itemId);
       if (result.ok) {
         router.refresh();
+      } else {
+        toast.error(result.error);
       }
     } finally {
       setIsDeleting(false);

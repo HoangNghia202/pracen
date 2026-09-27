@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trash } from "@phosphor-icons/react";
+import { toast } from "sonner";
 import { Button } from "@/shared/ui/button";
 import {
   AlertDialog,
@@ -28,6 +29,8 @@ export function DeleteFolderButton({ folderId, folderName }: { folderId: string;
       if (result.ok) {
         router.push("/library");
         router.refresh();
+      } else {
+        toast.error(result.error);
       }
     } finally {
       setIsDeleting(false);
