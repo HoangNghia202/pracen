@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
-import { createTestDb } from "./test-db";
-import { users } from "./schema";
+import { createTestDb } from "./db";
+import { users } from "@/shared/api";
 
 it("applies the migrations and allows inserting/reading a user", async () => {
   const db = await createTestDb();

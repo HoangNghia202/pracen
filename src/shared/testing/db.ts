@@ -1,7 +1,7 @@
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
-import * as schema from "./schema";
+import { schema } from "@/shared/api";
 
 export async function createTestDb() {
   const client = new PGlite();

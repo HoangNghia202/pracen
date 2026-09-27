@@ -1,4 +1,4 @@
-import { createTestDb } from "@/shared/api";
+import { createTestDb } from "@/shared/testing";
 import { createUser } from "@/entities/user";
 import { hashPassword } from "@/shared/lib/password";
 import { authorizeCredentials } from "./auth";
