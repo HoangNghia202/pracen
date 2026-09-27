@@ -99,8 +99,8 @@ Key decisions baked into this schema:
 - Middleware guards every route except `/login` and `/register`.
 
 ### 4.2 Library
-- Folder list: grid, sortable by "recently created" / "recently edited", search by
-  folder name (debounced).
+- Folder list: grid of cards (name, word count, last edited date), sortable by
+  "recently created" / "recently edited", search by folder name (debounced).
 - Create folder via dialog (name only).
 - Inside a folder: list of vocab items (word, meaning, 🔊 pronounce button using
   `SpeechSynthesis`).
