@@ -8,13 +8,23 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./vitest.setup.ts"],
     globals: true,
+    // PGlite's first WASM instantiation in a given worker process can take
+    // longer than Vitest's default 5000ms test timeout, causing intermittent
+    // false failures in DB-touching tests (createTestDb() callers) under the
+    // default multi-worker pool. 10s gives it reliable headroom without
+    // meaningfully slowing down the rest of the suite.
+    testTimeout: 10000,
     // Playwright's e2e suite lives under `e2e/` and calls `test.describe()`
     // from `@playwright/test`, which throws when collected by Vitest's own
     // test runner ("Playwright Test did not expect test.describe() to be
     // called here"). Vitest's default `exclude` doesn't know about this
     // project's `e2e/` directory, so add it explicitly — Playwright's own
     // config (`playwright.config.ts`) is what actually runs those files.
-    exclude: [...configDefaults.exclude, "e2e/**"],
+    // `.claude/**` excludes this harness's git-ignored worktree copies
+    // (`.claude/worktrees/...`), which are full nested checkouts of this
+    // same repo — without this, Vitest run from the main checkout also
+    // collects (and duplicates) every test file inside any live worktree.
+    exclude: [...configDefaults.exclude, "e2e/**", ".claude/**"],
     server: {
       // `next-auth` is an ESM package whose `lib/env.js` imports the bare
       // specifier "next/server" without a file extension. Node's native ESM
