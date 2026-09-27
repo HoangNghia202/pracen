@@ -54,9 +54,10 @@ describe("folder entity", () => {
     const db = await createTestDb();
     const ownerId = await makeUser(db, "owner@example.com");
     const first = await createFolder({ userId: ownerId, name: "First" }, db);
-    // Small delay to ensure distinct timestamps for sorting
+    // Delay to ensure distinct timestamps for sorting
     await new Promise((r) => setTimeout(r, 10));
     await createFolder({ userId: ownerId, name: "Second" }, db);
+    // Delay to ensure touch timestamp is distinct
     await new Promise((r) => setTimeout(r, 10));
     await touchFolder(first.id, db);
 
