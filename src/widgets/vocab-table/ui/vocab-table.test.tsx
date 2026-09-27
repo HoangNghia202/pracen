@@ -15,6 +15,7 @@ it("renders a row per vocab item", () => {
   render(<VocabTable items={[item]} />);
   expect(screen.getByText("Dog")).toBeInTheDocument();
   expect(screen.getByText("A domesticated canine")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Pronounce Dog" })).toBeInTheDocument();
 });
 
 it("shows an empty state with no items", () => {
