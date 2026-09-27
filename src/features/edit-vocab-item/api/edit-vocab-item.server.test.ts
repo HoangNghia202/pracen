@@ -67,4 +67,20 @@ describe("editVocabItemAction", () => {
 
     expect(nonexistentResult).toEqual(wrongOwnerResult);
   });
+
+  it("clears a previously-set example when submitted as an empty string", async () => {
+    const db = await createTestDb();
+    const user = await createUser({ email: "owner@example.com", passwordHash: "hash" }, db);
+    const folder = await createFolder({ userId: user.id, name: "Animals" }, db);
+    const item = await createVocabItem(
+      { folderId: folder.id, word: "Dog", meaning: "...", example: "The dog barks." },
+      db
+    );
+    vi.mocked(auth).mockResolvedValue({ user: { id: user.id } } as never);
+
+    const result = await editVocabItemAction(item.id, { word: "Dog", meaning: "...", example: "" }, db);
+
+    expect(result).toMatchObject({ ok: true });
+    expect((await getVocabItemById(item.id, db))?.example).toBeNull();
+  });
 });

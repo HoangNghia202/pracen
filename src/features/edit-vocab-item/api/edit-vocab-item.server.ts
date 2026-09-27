@@ -41,8 +41,8 @@ export async function editVocabItemAction(
         id: itemId,
         word: parsed.data.word,
         meaning: parsed.data.meaning,
-        example: parsed.data.example || undefined,
-        partOfSpeech: parsed.data.partOfSpeech || undefined,
+        example: parsed.data.example || null,
+        partOfSpeech: parsed.data.partOfSpeech || null,
       },
       dbInstance
     );

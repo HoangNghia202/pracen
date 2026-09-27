@@ -11,6 +11,10 @@ export interface VocabItem {
 export interface NewVocabItem {
   word: string;
   meaning: string;
-  example?: string;
-  partOfSpeech?: string;
+  // `string | null` (not just `string | undefined`) so an update can
+  // explicitly clear a previously-set value to NULL — `undefined` means
+  // "leave unchanged" (see `updateVocabItem`'s `!== undefined` guards),
+  // while `null` means "the caller wants this field empty".
+  example?: string | null;
+  partOfSpeech?: string | null;
 }
