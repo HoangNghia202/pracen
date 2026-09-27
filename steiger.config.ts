@@ -26,4 +26,22 @@ export default defineConfig([
       "fsd/forbidden-imports": "off",
     },
   },
+  {
+    // Every Server Action under `features/*/api/*.server.ts` authorizes its
+    // caller by calling `auth()` from `@/_app/api-routes/auth` (the plan's
+    // established, repeated pattern — every remaining task's Server Actions
+    // do this the same way, not a one-off mistake in this task). `_app` is
+    // the highest FSD layer here and has no public API (index.ts) for this
+    // segment, so that single, intentional import trips both
+    // `forbidden-imports` (lower layer reaching into a higher one) and
+    // `no-public-api-sidestep` (reaching past a slice's public API) on every
+    // Server Action file and its test. Scope both off for `*.server.ts`/
+    // `*.server.test.ts` files rather than restructuring session-reading
+    // into a lower layer.
+    files: ["./src/features/**/*.server.ts", "./src/features/**/*.server.test.ts"],
+    rules: {
+      "fsd/forbidden-imports": "off",
+      "fsd/no-public-api-sidestep": "off",
+    },
+  },
 ]);
