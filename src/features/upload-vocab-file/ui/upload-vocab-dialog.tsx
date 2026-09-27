@@ -29,8 +29,14 @@ export function UploadVocabDialog({ folderId }: { folderId: string }) {
     const file = event.target.files?.[0];
     if (!file) return;
     setError(null);
-    const buffer = await file.arrayBuffer();
-    setPreview(parseVocabFile(buffer));
+    setPreview(null);
+
+    try {
+      const buffer = await file.arrayBuffer();
+      setPreview(parseVocabFile(buffer));
+    } catch {
+      setError("Could not read this file. Please make sure it's a valid CSV or Excel file.");
+    }
   }
 
   async function handleConfirm() {

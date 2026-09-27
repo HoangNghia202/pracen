@@ -52,6 +52,18 @@ describe("parseVocabFile", () => {
     ]);
   });
 
+  it("ignores extra unrecognized columns instead of erroring on them", () => {
+    const buffer = bufferFromRows([
+      ["Word", "Meaning", "Notes", "Id"],
+      ["Dog", "A domesticated canine", "irrelevant", "42"],
+    ]);
+
+    const { valid, invalid } = parseVocabFile(buffer);
+
+    expect(invalid).toEqual([]);
+    expect(valid).toEqual([{ word: "Dog", meaning: "A domesticated canine" }]);
+  });
+
   it("returns no valid or invalid rows for a header-only or empty file", () => {
     const buffer = bufferFromRows([["word", "meaning"]]);
     expect(parseVocabFile(buffer)).toEqual({ valid: [], invalid: [] });
