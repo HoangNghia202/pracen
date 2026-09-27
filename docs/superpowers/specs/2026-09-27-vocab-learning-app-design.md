@@ -24,7 +24,10 @@ Four modules:
   with logo (left) and user menu (right). Minimal, low-distraction visual design —
   neutral shadcn theme, generous whitespace, no unnecessary color/ornamentation.
 - **Auth**: Auth.js (NextAuth v5) — Credentials provider (bcrypt-hashed password) +
-  Google OAuth provider. Database session strategy via Drizzle adapter.
+  Google OAuth provider. **JWT session strategy** (the Credentials provider does
+  not support database sessions in Auth.js v5 — session strategy is set once for
+  the whole instance). The Drizzle adapter is still used to persist users and
+  accounts (Google OAuth linking), just not the session record itself.
 - **Database**: Postgres provisioned through the Vercel Marketplace (e.g. Neon),
   free tier is sufficient at this scale. **Drizzle ORM**.
 - **Pronunciation audio**: browser `SpeechSynthesis` (Web Speech API) — free,
@@ -94,7 +97,8 @@ Key decisions baked into this schema:
 
 ### 4.1 Auth
 - Register/login via email+password (bcrypt hash, Zod-validated) or Google OAuth.
-- Session persisted in DB via Auth.js + Drizzle adapter.
+- Session is a signed JWT cookie (Auth.js default). Drizzle adapter persists
+  users/accounts in Postgres so Google OAuth account linking still works.
 - Logout clears session, redirects to `/login`.
 - Middleware guards every route except `/login` and `/register`.
 
