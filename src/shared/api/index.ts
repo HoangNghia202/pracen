@@ -1,1 +1,1 @@
-export { users, accounts, sessions, verificationTokens } from "./db/schema";
+export * from "./db";
