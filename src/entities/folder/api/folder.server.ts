@@ -62,7 +62,7 @@ export async function renameFolder(
 ): Promise<Folder | null> {
   const rows = await db
     .update(folders)
-    .set({ name: input.name, updatedAt: new Date() })
+    .set({ name: input.name, updatedAt: sql`now()` })
     .where(and(eq(folders.id, input.id), eq(folders.userId, input.userId)))
     .returning();
   return rows[0] ?? null;
