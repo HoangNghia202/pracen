@@ -7,6 +7,8 @@ import { createQuiz } from "@/entities/quiz";
 import { createQuizQuestions } from "@/entities/quiz-question";
 import { getInProgressAttempt } from "@/entities/quiz-attempt";
 import { startQuizAttemptAction } from "./start-quiz-attempt.server";
+import { quizAttempts } from "@/shared/api";
+import { eq, and } from "drizzle-orm";
 
 vi.mock("@/_app/api-routes/auth", () => ({ auth: vi.fn() }));
 
@@ -37,12 +39,16 @@ describe("startQuizAttemptAction", () => {
 
   it("returns the existing in-progress attempt instead of creating a second one", async () => {
     const db = await createTestDb();
-    const { quizId } = await setup(db);
+    const { quizId, userId } = await setup(db);
 
     const first = await startQuizAttemptAction(quizId, db);
     const second = await startQuizAttemptAction(quizId, db);
 
     expect(first.ok && second.ok && first.attemptId).toBe(second.ok && second.attemptId);
+
+    // Verify only ONE row was created at the DB level
+    const rows = await db.select().from(quizAttempts).where(and(eq(quizAttempts.quizId, quizId), eq(quizAttempts.userId, userId)));
+    expect(rows).toHaveLength(1);
   });
 
   it("rejects a quiz the requester doesn't own", async () => {
