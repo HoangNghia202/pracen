@@ -3,7 +3,7 @@ import { createUser } from "@/entities/user";
 import { createFolder } from "@/entities/folder";
 import { quizQuestions, folders } from "@/shared/api";
 import { eq } from "drizzle-orm";
-import { createQuiz, listQuizzesByUser, getQuizById } from "./quiz.server";
+import { createQuiz, listQuizzesByUser, getQuizById, deleteQuiz } from "./quiz.server";
 
 async function makeFolder(db: Awaited<ReturnType<typeof createTestDb>>, email = "owner@example.com") {
   const user = await createUser({ email, passwordHash: "hash" }, db);
@@ -106,6 +106,19 @@ describe("quiz entity", () => {
 
     await db.delete(folders).where(eq(folders.id, folderId));
 
+    expect(await getQuizById(quiz.id, userId, db)).toBeNull();
+  });
+
+  it("deletes a quiz by id (internal cleanup helper, not ownership-scoped)", async () => {
+    const db = await createTestDb();
+    const { userId, folderId } = await makeFolder(db);
+    const quiz = await createQuiz(
+      { ...baseInput, folderId, userId, questionTypes: [...baseInput.questionTypes] },
+      db
+    );
+
+    const deleted = await deleteQuiz(quiz.id, db);
+    expect(deleted).toBe(true);
     expect(await getQuizById(quiz.id, userId, db)).toBeNull();
   });
 });

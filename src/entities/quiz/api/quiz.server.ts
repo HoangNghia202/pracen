@@ -66,3 +66,13 @@ export async function getQuizById(id: string, userId: string, db: Db = defaultDb
     .where(and(eq(quizzes.id, id), eq(quizzes.userId, userId)));
   return rows[0] ?? null;
 }
+
+// Internal cleanup helper only — not a user-facing "delete quiz" feature.
+// Unlike `deleteFolder`, this is not ownership-scoped: it exists solely so
+// `createQuizAction` can compensate (remove the just-created quiz row) when
+// question creation fails partway through, since the production DB driver
+// doesn't support real transactions. Nothing else should call this.
+export async function deleteQuiz(id: string, db: Db = defaultDb): Promise<boolean> {
+  const rows = await db.delete(quizzes).where(eq(quizzes.id, id)).returning();
+  return rows.length > 0;
+}

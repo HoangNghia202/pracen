@@ -3,7 +3,7 @@
 import { createQuizSchema } from "../model/schema";
 import { getFolderById } from "@/entities/folder";
 import { listVocabItemsByFolder } from "@/entities/vocab-item";
-import { createQuiz } from "@/entities/quiz";
+import { createQuiz, deleteQuiz } from "@/entities/quiz";
 import { buildQuizQuestions, createQuizQuestions } from "@/entities/quiz-question";
 import { auth } from "@/_app/api-routes/auth";
 import { db as defaultDb } from "@/shared/api";
@@ -44,41 +44,37 @@ export async function createQuizAction(input: unknown, dbInstance: Db = defaultD
 
     const selectedItems = folderItems.filter((item) => data.vocabItemIds.includes(item.id));
 
-    // Wrapped in a transaction so a failure creating the questions can never
-    // leave a permanently orphaned, question-less quiz row behind (this plan
-    // ships no delete feature, so such a row would be unrecoverable by the
-    // user). NOTE: this only provides real atomicity against a
-    // transaction-capable driver (e.g. the PGlite driver used in tests). The
-    // production client in src/shared/api/db/client.ts uses
-    // drizzle-orm/neon-http, whose `.transaction()` unconditionally throws
-    // "No transactions support in neon-http driver" — see
-    // node_modules/drizzle-orm/neon-http/session.ts. Flagged as a concern in
-    // the fix report; needs a follow-up decision (e.g. moving the production
-    // client to a transaction-capable Neon driver) before this can be relied
-    // on outside tests.
-    const quiz = await dbInstance.transaction(async (tx) => {
-      const createdQuiz = await createQuiz(
-        {
-          folderId: data.folderId,
-          userId: session.user.id,
-          name: data.name,
-          questionTypes: data.questionTypes,
-          vocabItemIds: data.vocabItemIds,
-          shuffleQuestions: data.shuffleQuestions,
-          shuffleAnswers: data.shuffleAnswers,
-        },
-        tx
-      );
+    const quiz = await createQuiz(
+      {
+        folderId: data.folderId,
+        userId: session.user.id,
+        name: data.name,
+        questionTypes: data.questionTypes,
+        vocabItemIds: data.vocabItemIds,
+        shuffleQuestions: data.shuffleQuestions,
+        shuffleAnswers: data.shuffleAnswers,
+      },
+      dbInstance
+    );
 
+    // The production DB client (drizzle-orm/neon-http) doesn't support real
+    // transactions, so instead of wrapping this in `dbInstance.transaction`,
+    // a failure creating the questions is compensated for by deleting the
+    // just-created quiz row. This avoids leaving a permanently orphaned,
+    // question-less quiz behind (this plan ships no delete feature, so such
+    // a row would be unrecoverable by the user).
+    try {
       const questions = buildQuizQuestions({
         selectedItems,
         questionTypes: data.questionTypes,
         distractorPool: folderItems,
       });
-      await createQuizQuestions(createdQuiz.id, questions, tx);
-
-      return createdQuiz;
-    });
+      await createQuizQuestions(quiz.id, questions, dbInstance);
+    } catch (err) {
+      // Best-effort cleanup; don't let a cleanup failure mask the original error.
+      await deleteQuiz(quiz.id, dbInstance).catch(() => {});
+      throw err;
+    }
 
     safeRevalidatePath("/quiz");
     return { ok: true, id: quiz.id };

@@ -179,7 +179,7 @@ describe("createQuizAction", () => {
     expect(questions).toHaveLength(1); // 1 word x 1 type
   });
 
-  it("leaves no quiz row behind when question creation fails mid-way (transactional atomicity)", async () => {
+  it("leaves no quiz row behind when question creation fails mid-way (compensating rollback delete)", async () => {
     const db = await createTestDb();
     const { folderId, dog, cat } = await setup(db);
 
