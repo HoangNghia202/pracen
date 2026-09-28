@@ -110,3 +110,37 @@ export const quizQuestions = pgTable("quizQuestion", {
   choices: jsonb("choices").$type<{ id: string; word: string; meaning: string }[] | null>(),
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
 });
+
+export const quizAttempts = pgTable("quizAttempt", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  quizId: text("quizId")
+    .notNull()
+    .references(() => quizzes.id, { onDelete: "cascade" }),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  status: text("status").notNull().$type<"in_progress" | "completed">().default("in_progress"),
+  questionsSnapshot: jsonb("questionsSnapshot")
+    .notNull()
+    .$type<{ questionId: string; choiceOrder: string[] | null }[]>(),
+  currentIndex: integer("currentIndex").notNull().default(0),
+  totalQuestions: integer("totalQuestions").notNull(),
+  score: integer("score"),
+  startedAt: timestamp("startedAt", { mode: "date" }).notNull().defaultNow(),
+  finishedAt: timestamp("finishedAt", { mode: "date" }),
+});
+
+export const attemptAnswers = pgTable("attemptAnswer", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  attemptId: text("attemptId")
+    .notNull()
+    .references(() => quizAttempts.id, { onDelete: "cascade" }),
+  questionIndex: integer("questionIndex").notNull(),
+  questionType: text("questionType").notNull().$type<"meaning" | "word" | "sentence">(),
+  word: text("word").notNull(),
+  meaning: text("meaning").notNull(),
+  userAnswer: text("userAnswer").notNull(),
+  isCorrect: boolean("isCorrect").notNull(),
+  aiFeedback: text("aiFeedback"),
+  answeredAt: timestamp("answeredAt", { mode: "date" }).notNull().defaultNow(),
+});
