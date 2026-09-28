@@ -1361,6 +1361,19 @@ it("disables submit until a name, at least one word, and at least one question t
   );
   expect(push).toHaveBeenCalledWith("/quiz/quiz-1");
 });
+
+it("shows the empty-folder state and keeps submit disabled when the folder has no words", async () => {
+  vi.mocked(getFolderWordsAction).mockResolvedValue({ ok: true, items: [] });
+  const user = userEvent.setup();
+  render(<CreateQuizDialog folders={[{ id: "f1", name: "Empty" }]} initialFolderId="f1" />);
+  await user.click(screen.getByRole("button", { name: "Create quiz" }));
+
+  await waitFor(() => expect(screen.getByText("This folder has no words yet.")).toBeInTheDocument());
+  await user.type(screen.getByLabelText("Quiz name"), "Empty Quiz");
+  await user.click(screen.getByRole("checkbox", { name: "Meaning" }));
+
+  expect(screen.getAllByRole("button", { name: "Create quiz" })[1]).toBeDisabled();
+});
 ```
 
 - [ ] **Step 4: Run the tests to verify they fail**
@@ -1603,7 +1616,7 @@ Note on Step 3's test: the dialog trigger and the submit button are both labeled
 - [ ] **Step 6: Run the tests to verify they pass**
 
 Run: `npx vitest run src/features/create-quiz/ui/create-quiz-dialog.test.tsx`
-Expected: PASS (3 tests)
+Expected: PASS (4 tests)
 
 - [ ] **Step 7: Barrel export**
 
