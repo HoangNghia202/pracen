@@ -5,13 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { submitAnswerAction } from "@/features/submit-quiz-answer";
-import type { QuestionType } from "@/entities/quiz-attempt";
-
-interface QuestionChoice {
-  id: string;
-  word: string;
-  meaning: string;
-}
+import type { QuestionChoice, QuestionType } from "@/entities/quiz-attempt";
 
 interface QuizPlayerProps {
   attemptId: string;
@@ -111,7 +105,7 @@ export function QuizPlayer({
 
       {feedback ? (
         <div className="flex flex-col gap-2">
-          <p className={feedback.isCorrect ? "text-sm font-medium text-green-600" : "text-destructive text-sm font-medium"}>
+          <p className={feedback.isCorrect ? "text-success text-sm font-medium" : "text-destructive text-sm font-medium"}>
             {feedback.isCorrect ? "Correct!" : "Not quite."}
           </p>
           {feedback.aiFeedback && <p className="text-muted-foreground text-sm">{feedback.aiFeedback}</p>}

@@ -27,17 +27,22 @@ export default defineConfig([
     },
   },
   {
-    // Every Server Action under `features/*/api/*.server.ts` authorizes its
-    // caller by calling `auth()` from `@/_app/api-routes/auth` (the plan's
-    // established, repeated pattern — every remaining task's Server Actions
-    // do this the same way, not a one-off mistake in this task). `_app` is
-    // the highest FSD layer here and has no public API (index.ts) for this
-    // segment, so that single, intentional import trips both
-    // `forbidden-imports` (lower layer reaching into a higher one) and
-    // `no-public-api-sidestep` (reaching past a slice's public API) on every
-    // Server Action file and its test. Scope both off for `*.server.ts`/
-    // `*.server.test.ts` files rather than restructuring session-reading
-    // into a lower layer.
+    // This exemption covers two intentional, repeated cross-slice imports in
+    // `features/*/api/*.server.ts` files:
+    // 1. Every Server Action authorizes its caller by calling `auth()` from
+    //    `@/_app/api-routes/auth` (the plan's established, repeated pattern —
+    //    every task's Server Actions do this the same way, not a one-off
+    //    mistake). `_app` is the highest FSD layer here and has no public API
+    //    (index.ts) for this segment, so that single, intentional import trips
+    //    both `forbidden-imports` (lower layer reaching into a higher one) and
+    //    `no-public-api-sidestep` (reaching past a slice's public API).
+    // 2. `submit-quiz-answer.server.ts` imports `gradeSentenceAnswer` from the
+    //    sibling `@/features/grade-sentence-answer` slice — a same-layer
+    //    (`features` -> `features`) composition that also trips
+    //    `forbidden-imports`.
+    // Scope both rules off for `*.server.ts`/`*.server.test.ts` files rather
+    // than restructuring session-reading or feature composition into a lower
+    // layer.
     files: ["./src/features/**/*.server.ts", "./src/features/**/*.server.test.ts"],
     rules: {
       "fsd/forbidden-imports": "off",

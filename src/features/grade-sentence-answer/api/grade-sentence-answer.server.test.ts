@@ -29,4 +29,25 @@ describe("gradeSentenceAnswer", () => {
     expect(result.isCorrect).toBe(false);
     expect(result.feedback).toMatch(/couldn't automatically grade/i);
   });
+
+  it("passes a timeout option to generateText so a hung call doesn't block forever", async () => {
+    vi.mocked(generateText).mockResolvedValue({
+      output: { isCorrect: true, feedback: "Nicely done." },
+    } as never);
+
+    await gradeSentenceAnswer("Dog", "A domesticated canine", "I walked my dog this morning.");
+
+    expect(generateText).toHaveBeenCalledWith(expect.objectContaining({ timeout: expect.any(Number) }));
+  });
+
+  it("falls back to a manual-review message when the call times out (abort-style rejection)", async () => {
+    vi.mocked(generateText).mockRejectedValue(new DOMException("The operation was aborted.", "TimeoutError"));
+
+    const result = await gradeSentenceAnswer("Dog", "A domesticated canine", "I walked my dog this morning.");
+
+    expect(result).toEqual({
+      isCorrect: false,
+      feedback: expect.stringMatching(/couldn't automatically grade/i),
+    });
+  });
 });

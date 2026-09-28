@@ -33,7 +33,7 @@ logout, on Next.js 15 (App Router).
    npx drizzle-kit push
    ```
 
-   This applies the Drizzle schema (`src/shared/api/db/schema.ts`: `user`, `account`, `session`, `verificationToken`, `folder`, `vocabItem`, `quiz`, `quizQuestion`) to the database in `DATABASE_URL`.
+   This applies the Drizzle schema (`src/shared/api/db/schema.ts`: `user`, `account`, `session`, `verificationToken`, `folder`, `vocabItem`, `quiz`, `quizQuestion`, `quizAttempt`, `attemptAnswer`) to the database in `DATABASE_URL`.
 
    Re-run this command every time you pull changes that touch `schema.ts` — a
    dev database that's out of sync with the schema causes hard-to-diagnose

@@ -19,6 +19,9 @@ export default async function Page({ params }: { params: Promise<{ quizId: strin
   }
 
   const snapshotItem = attempt.questionsSnapshot[attempt.currentIndex];
+  if (!snapshotItem) {
+    redirect(`/quiz/${quizId}`);
+  }
   const question = await getQuestionById(snapshotItem.questionId);
   if (!question) {
     redirect(`/quiz/${quizId}`);

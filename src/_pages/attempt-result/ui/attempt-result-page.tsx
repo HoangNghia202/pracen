@@ -3,12 +3,22 @@ import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { Badge } from "@/shared/ui/badge";
 import type { AttemptAnswer } from "@/entities/quiz-attempt";
 
+// `userAnswer`/the question's own `vocabItemId` are raw ids for `meaning`/`word`
+// questions — the route resolves them to human-readable labels (the choice's
+// word or meaning text) before handing answers to this presentational
+// component. `correctAnswerLabel` is null for `sentence` answers, which are
+// AI-graded free text with no single correct answer to display.
+export interface ResolvedAttemptAnswer extends AttemptAnswer {
+  userAnswerLabel: string;
+  correctAnswerLabel: string | null;
+}
+
 interface AttemptResultPageProps {
   quizId: string;
   quizName: string;
   score: number | null;
   totalQuestions: number;
-  answers: AttemptAnswer[];
+  answers: ResolvedAttemptAnswer[];
 }
 
 export function AttemptResultPage({ quizId, quizName, score, totalQuestions, answers }: AttemptResultPageProps) {
@@ -34,7 +44,10 @@ export function AttemptResultPage({ quizId, quizName, score, totalQuestions, ans
               </Badge>
             </div>
             <p className="text-muted-foreground text-sm">Meaning: {answer.meaning}</p>
-            <p className="text-sm">Your answer: {answer.userAnswer}</p>
+            <p className="text-sm">Your answer: {answer.userAnswerLabel}</p>
+            {answer.correctAnswerLabel !== null && (
+              <p className="text-sm">Correct answer: {answer.correctAnswerLabel}</p>
+            )}
             {answer.aiFeedback && <p className="text-muted-foreground text-sm">{answer.aiFeedback}</p>}
           </div>
         ))}
