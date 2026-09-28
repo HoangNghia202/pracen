@@ -6,7 +6,6 @@ import { getQuestionById } from "@/entities/quiz-question";
 import { gradeSentenceAnswer } from "@/features/grade-sentence-answer";
 import { auth } from "@/_app/api-routes/auth";
 import { db as defaultDb } from "@/shared/api";
-import { safeRevalidatePath } from "@/shared/lib/safe-revalidate-path";
 
 export type SubmitAnswerResult =
   | { ok: true; isCorrect: boolean; aiFeedback: string | null; completed: boolean; score: number | null }
@@ -72,7 +71,12 @@ export async function submitAnswerAction(
       dbInstance
     );
 
-    safeRevalidatePath(`/quiz/${attempt.quizId}/attempt`);
+    // Deliberately no revalidatePath here: revalidating the attempt route
+    // from inside this action makes Next.js auto-merge a fresh Server
+    // Component render (already on the *next* question) into the response,
+    // which unmounts QuizPlayer before it can show this question's feedback.
+    // The player's own explicit router.refresh() (fired when the user clicks
+    // "Next question") is what fetches the next question, at the right time.
     return { ok: true, isCorrect, aiFeedback, completed: updated.status === "completed", score: updated.score };
   } catch {
     return { ok: false, error: "Something went wrong. Please try again." };
