@@ -3,6 +3,7 @@ import { auth } from "@/_app/api-routes/auth";
 import { getQuizById } from "@/entities/quiz";
 import { getFolderById } from "@/entities/folder";
 import { listQuestionsByQuiz } from "@/entities/quiz-question";
+import { getInProgressAttempt, listAttemptsByQuiz } from "@/entities/quiz-attempt";
 import QuizOverviewPage from "@/_pages/quiz-overview";
 
 export default async function Page({ params }: { params: Promise<{ quizId: string }> }) {
@@ -12,11 +13,19 @@ export default async function Page({ params }: { params: Promise<{ quizId: strin
   if (!quiz) {
     notFound();
   }
-  const [folder, questions] = await Promise.all([
+  const [folder, questions, inProgressAttempt, completedAttempts] = await Promise.all([
     getFolderById(quiz.folderId, session!.user.id),
     listQuestionsByQuiz(quiz.id),
+    getInProgressAttempt(quiz.id, session!.user.id),
+    listAttemptsByQuiz(quiz.id, session!.user.id),
   ]);
   return (
-    <QuizOverviewPage quiz={quiz} folderName={folder?.name ?? "Unknown folder"} questionCount={questions.length} />
+    <QuizOverviewPage
+      quiz={quiz}
+      folderName={folder?.name ?? "Unknown folder"}
+      questionCount={questions.length}
+      inProgressAttempt={inProgressAttempt}
+      completedAttempts={completedAttempts}
+    />
   );
 }

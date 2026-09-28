@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { Badge } from "@/shared/ui/badge";
+import { StartQuizButton } from "@/features/start-quiz-attempt";
+import { AttemptHistory } from "@/widgets/attempt-history";
 import type { Quiz } from "@/entities/quiz";
+import type { QuizAttempt } from "@/entities/quiz-attempt";
 
 const QUESTION_TYPE_LABEL: Record<string, string> = {
   meaning: "Meaning",
@@ -13,9 +16,17 @@ interface QuizOverviewPageProps {
   quiz: Quiz;
   folderName: string;
   questionCount: number;
+  inProgressAttempt: QuizAttempt | null;
+  completedAttempts: QuizAttempt[];
 }
 
-export function QuizOverviewPage({ quiz, folderName, questionCount }: QuizOverviewPageProps) {
+export function QuizOverviewPage({
+  quiz,
+  folderName,
+  questionCount,
+  inProgressAttempt,
+  completedAttempts,
+}: QuizOverviewPageProps) {
   return (
     <div className="flex flex-col gap-6">
       <Link href="/quiz" className="text-muted-foreground flex items-center gap-1 text-sm">
@@ -38,6 +49,11 @@ export function QuizOverviewPage({ quiz, folderName, questionCount }: QuizOvervi
             </Badge>
           ))}
         </div>
+      </div>
+      <StartQuizButton quizId={quiz.id} hasInProgressAttempt={Boolean(inProgressAttempt)} />
+      <div className="flex flex-col gap-2">
+        <h2 className="text-lg font-medium">Attempt history</h2>
+        <AttemptHistory quizId={quiz.id} attempts={completedAttempts} />
       </div>
     </div>
   );
