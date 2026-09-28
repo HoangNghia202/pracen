@@ -146,4 +146,31 @@ describe("createQuizAction", () => {
 
     expect(result).toMatchObject({ ok: false });
   });
+
+  it("allows meaning questions when selecting 1 word from a folder with 3 words (checks folder total, not selection size)", async () => {
+    const db = await createTestDb();
+    const user = await createUser({ email: "owner@example.com", passwordHash: "hash" }, db);
+    vi.mocked(auth).mockResolvedValue({ user: { id: user.id } } as never);
+    const folder = await createFolder({ userId: user.id, name: "Animals" }, db);
+    const dog = await createVocabItem({ folderId: folder.id, word: "Dog", meaning: "A dog" }, db);
+    const cat = await createVocabItem({ folderId: folder.id, word: "Cat", meaning: "A cat" }, db);
+    const bird = await createVocabItem({ folderId: folder.id, word: "Bird", meaning: "A bird" }, db);
+
+    const result = await createQuizAction(
+      {
+        folderId: folder.id,
+        name: "Single Word Quiz",
+        vocabItemIds: [dog.id],
+        questionTypes: ["meaning"],
+        shuffleQuestions: false,
+        shuffleAnswers: false,
+      },
+      db
+    );
+
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) throw new Error("expected ok");
+    const questions = await listQuestionsByQuiz(result.id, db);
+    expect(questions).toHaveLength(1); // 1 word x 1 type
+  });
 });
