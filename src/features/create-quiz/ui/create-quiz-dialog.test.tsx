@@ -83,3 +83,52 @@ it("shows the empty-folder state and keeps submit disabled when the folder has n
   const dialog = screen.getByRole("dialog");
   expect(within(dialog).getByRole("button", { name: "Create quiz" })).toBeDisabled();
 });
+
+it("keeps the later-selected folder's words even when the earlier folder's fetch resolves last", async () => {
+  const user = userEvent.setup();
+  const folderAWords = [
+    { id: "a1", folderId: "fA", word: "Alpha", meaning: "First letter", example: null, partOfSpeech: null, createdAt: new Date() },
+  ];
+  const folderBWords = [
+    { id: "b1", folderId: "fB", word: "Beta", meaning: "Second letter", example: null, partOfSpeech: null, createdAt: new Date() },
+  ];
+
+  let resolveA!: (value: { ok: true; items: typeof folderAWords }) => void;
+  let resolveB!: (value: { ok: true; items: typeof folderBWords }) => void;
+  const promiseA = new Promise<{ ok: true; items: typeof folderAWords }>((resolve) => {
+    resolveA = resolve;
+  });
+  const promiseB = new Promise<{ ok: true; items: typeof folderBWords }>((resolve) => {
+    resolveB = resolve;
+  });
+
+  vi.mocked(getFolderWordsAction).mockImplementation((folderId: string) => {
+    if (folderId === "fA") return promiseA;
+    if (folderId === "fB") return promiseB;
+    return Promise.resolve({ ok: true, items: [] });
+  });
+
+  render(
+    <CreateQuizDialog
+      folders={[
+        { id: "fA", name: "Alpha Folder" },
+        { id: "fB", name: "Beta Folder" },
+      ]}
+    />
+  );
+  await user.click(screen.getByRole("button", { name: "Create quiz" }));
+
+  await user.click(screen.getByLabelText("Folder"));
+  await user.click(screen.getByRole("option", { name: "Alpha Folder" }));
+
+  await user.click(screen.getByLabelText("Folder"));
+  await user.click(screen.getByRole("option", { name: "Beta Folder" }));
+
+  // Beta was selected last, but Alpha's request resolves first (out of order).
+  resolveA({ ok: true, items: folderAWords });
+  await Promise.resolve();
+  resolveB({ ok: true, items: folderBWords });
+
+  await waitFor(() => expect(screen.getByText("Beta — Second letter")).toBeInTheDocument());
+  expect(screen.queryByText("Alpha — First letter")).not.toBeInTheDocument();
+});

@@ -33,7 +33,7 @@ describe("getFolderWordsAction", () => {
 
   it("rejects the call when there is no session", async () => {
     const db = await createTestDb();
-    vi.mocked(auth).mockResolvedValue(null);
+    vi.mocked(auth).mockResolvedValue(null as never);
     expect(await getFolderWordsAction("f1", db)).toMatchObject({ ok: false });
   });
 });

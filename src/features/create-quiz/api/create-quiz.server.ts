@@ -44,25 +44,41 @@ export async function createQuizAction(input: unknown, dbInstance: Db = defaultD
 
     const selectedItems = folderItems.filter((item) => data.vocabItemIds.includes(item.id));
 
-    const quiz = await createQuiz(
-      {
-        folderId: data.folderId,
-        userId: session.user.id,
-        name: data.name,
-        questionTypes: data.questionTypes,
-        vocabItemIds: data.vocabItemIds,
-        shuffleQuestions: data.shuffleQuestions,
-        shuffleAnswers: data.shuffleAnswers,
-      },
-      dbInstance
-    );
+    // Wrapped in a transaction so a failure creating the questions can never
+    // leave a permanently orphaned, question-less quiz row behind (this plan
+    // ships no delete feature, so such a row would be unrecoverable by the
+    // user). NOTE: this only provides real atomicity against a
+    // transaction-capable driver (e.g. the PGlite driver used in tests). The
+    // production client in src/shared/api/db/client.ts uses
+    // drizzle-orm/neon-http, whose `.transaction()` unconditionally throws
+    // "No transactions support in neon-http driver" — see
+    // node_modules/drizzle-orm/neon-http/session.ts. Flagged as a concern in
+    // the fix report; needs a follow-up decision (e.g. moving the production
+    // client to a transaction-capable Neon driver) before this can be relied
+    // on outside tests.
+    const quiz = await dbInstance.transaction(async (tx) => {
+      const createdQuiz = await createQuiz(
+        {
+          folderId: data.folderId,
+          userId: session.user.id,
+          name: data.name,
+          questionTypes: data.questionTypes,
+          vocabItemIds: data.vocabItemIds,
+          shuffleQuestions: data.shuffleQuestions,
+          shuffleAnswers: data.shuffleAnswers,
+        },
+        tx
+      );
 
-    const questions = buildQuizQuestions({
-      selectedItems,
-      questionTypes: data.questionTypes,
-      distractorPool: folderItems,
+      const questions = buildQuizQuestions({
+        selectedItems,
+        questionTypes: data.questionTypes,
+        distractorPool: folderItems,
+      });
+      await createQuizQuestions(createdQuiz.id, questions, tx);
+
+      return createdQuiz;
     });
-    await createQuizQuestions(quiz.id, questions, dbInstance);
 
     safeRevalidatePath("/quiz");
     return { ok: true, id: quiz.id };

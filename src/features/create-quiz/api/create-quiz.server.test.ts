@@ -1,10 +1,13 @@
 import { createTestDb } from "@/shared/testing";
 import { vi } from "vitest";
+import { eq } from "drizzle-orm";
 import { auth } from "@/_app/api-routes/auth";
 import { createUser } from "@/entities/user";
 import { createFolder } from "@/entities/folder";
 import { createVocabItem } from "@/entities/vocab-item";
 import { listQuestionsByQuiz } from "@/entities/quiz-question";
+import * as quizQuestionEntity from "@/entities/quiz-question";
+import { quizzes } from "@/shared/api";
 import { createQuizAction } from "./create-quiz.server";
 
 vi.mock("@/_app/api-routes/auth", () => ({ auth: vi.fn() }));
@@ -130,7 +133,7 @@ describe("createQuizAction", () => {
 
   it("rejects the call when there is no session", async () => {
     const db = await createTestDb();
-    vi.mocked(auth).mockResolvedValue(null);
+    vi.mocked(auth).mockResolvedValue(null as never);
 
     const result = await createQuizAction(
       {
@@ -153,7 +156,9 @@ describe("createQuizAction", () => {
     vi.mocked(auth).mockResolvedValue({ user: { id: user.id } } as never);
     const folder = await createFolder({ userId: user.id, name: "Animals" }, db);
     const dog = await createVocabItem({ folderId: folder.id, word: "Dog", meaning: "A dog" }, db);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- created only to give the folder 3 words total
     const cat = await createVocabItem({ folderId: folder.id, word: "Cat", meaning: "A cat" }, db);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- created only to give the folder 3 words total
     const bird = await createVocabItem({ folderId: folder.id, word: "Bird", meaning: "A bird" }, db);
 
     const result = await createQuizAction(
@@ -172,5 +177,35 @@ describe("createQuizAction", () => {
     if (!result.ok) throw new Error("expected ok");
     const questions = await listQuestionsByQuiz(result.id, db);
     expect(questions).toHaveLength(1); // 1 word x 1 type
+  });
+
+  it("leaves no quiz row behind when question creation fails mid-way (transactional atomicity)", async () => {
+    const db = await createTestDb();
+    const { folderId, dog, cat } = await setup(db);
+
+    const createQuizQuestionsSpy = vi
+      .spyOn(quizQuestionEntity, "createQuizQuestions")
+      .mockRejectedValueOnce(new Error("simulated failure creating questions"));
+
+    try {
+      const result = await createQuizAction(
+        {
+          folderId,
+          name: "Doomed Quiz",
+          vocabItemIds: [dog.id, cat.id],
+          questionTypes: ["meaning"],
+          shuffleQuestions: false,
+          shuffleAnswers: false,
+        },
+        db
+      );
+
+      expect(result).toMatchObject({ ok: false });
+
+      const survivingRows = await db.select().from(quizzes).where(eq(quizzes.name, "Doomed Quiz"));
+      expect(survivingRows).toHaveLength(0);
+    } finally {
+      createQuizQuestionsSpy.mockRestore();
+    }
   });
 });

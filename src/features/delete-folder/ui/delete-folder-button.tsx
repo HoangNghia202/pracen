@@ -48,7 +48,8 @@ export function DeleteFolderButton({ folderId, folderName }: { folderId: string;
         <AlertDialogHeader>
           <AlertDialogTitle>Delete &ldquo;{folderName}&rdquo;?</AlertDialogTitle>
           <AlertDialogDescription>
-            This permanently deletes the folder and every word inside it. This can&apos;t be undone.
+            This permanently deletes the folder, every word inside it, and every quiz built from it. This
+            can&apos;t be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

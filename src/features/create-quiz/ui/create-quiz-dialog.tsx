@@ -43,10 +43,22 @@ export function CreateQuizDialog({ folders, initialFolderId }: CreateQuizDialogP
 
   useEffect(() => {
     if (!open || !folderId) return;
+    // Last-request-wins guard: if `folderId` changes (or the dialog closes)
+    // before this fetch resolves, `cancelled` is flipped by the cleanup
+    // function below and the stale response is discarded instead of
+    // overwriting the newer folder's state.
+    let cancelled = false;
+    const requestedFolderId = folderId;
+
+    // Clear any previous folder's words/selection synchronously so nothing
+    // stale renders (or is submittable) while this folder's words load.
+    setWords([]);
+    setSelectedWordIds(new Set());
     setIsLoadingWords(true);
     setError(null);
-    getFolderWordsAction(folderId)
+    getFolderWordsAction(requestedFolderId)
       .then((result) => {
+        if (cancelled) return;
         if (!result.ok) {
           setError(result.error);
           setWords([]);
@@ -55,7 +67,13 @@ export function CreateQuizDialog({ folders, initialFolderId }: CreateQuizDialogP
         setWords(result.items);
         setSelectedWordIds(new Set(result.items.map((item) => item.id)));
       })
-      .finally(() => setIsLoadingWords(false));
+      .finally(() => {
+        if (!cancelled) setIsLoadingWords(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [open, folderId]);
 
   function toggleWord(id: string) {
@@ -118,7 +136,12 @@ export function CreateQuizDialog({ folders, initialFolderId }: CreateQuizDialogP
   }
 
   const canSubmit =
-    folderId.length > 0 && name.trim().length > 0 && selectedWordIds.size > 0 && questionTypes.size > 0 && !isSubmitting;
+    folderId.length > 0 &&
+    name.trim().length > 0 &&
+    selectedWordIds.size > 0 &&
+    questionTypes.size > 0 &&
+    !isSubmitting &&
+    !isLoadingWords;
 
   return (
     <Dialog
