@@ -21,8 +21,11 @@ logout, on Next.js 15 (App Router).
    | `DATABASE_URL` | A Postgres connection string. A free [Neon](https://neon.tech) database works — create a project and copy its connection string (the pooled/HTTP-compatible one, since this project uses the Neon HTTP driver). |
    | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Create an OAuth 2.0 Client ID in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials) (type: Web application). Add `http://localhost:3000/api/auth/callback/google` as an authorized redirect URI for local dev. |
    | `AUTH_SECRET` | Generate one with `npx auth secret`. |
+   | `AI_GATEWAY_API_KEY` | Create one with `vercel ai-gateway api-keys create` (or via the Vercel dashboard's AI Gateway tab). Optional: sentence-type quiz questions grade with a graceful fallback message if this is unset or the call fails — every other feature works without it. |
 
-   All four are required — the app fails fast with an actionable error at startup if `DATABASE_URL` is missing (see `src/shared/config/env.ts`), and Auth.js needs the rest to run at all.
+   `AI_GATEWAY_MODEL` defaults to `google/gemini-2.5-flash` if unset; run `curl -s https://ai-gateway.vercel.sh/v1/models | jq -r '.data[].id'` to see what's currently available before changing it, since Gateway models are added and retired over time.
+
+   `DATABASE_URL`, `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`, and `AUTH_SECRET` are required — the app fails fast with an actionable error at startup if `DATABASE_URL` is missing (see `src/shared/config/env.ts`), and Auth.js needs the rest to run at all. `AI_GATEWAY_API_KEY` and `AI_GATEWAY_MODEL` are optional, as noted above.
 
 3. **Provision the database schema**
 
