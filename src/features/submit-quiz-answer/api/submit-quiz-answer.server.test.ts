@@ -105,7 +105,7 @@ describe("submitAnswerAction", () => {
     vi.mocked(gradeSentenceAnswer).mockResolvedValue({ isCorrect: true, feedback: "Nicely done." });
     await submitAnswerAction(attemptId, { questionIndex: 0, userAnswer: "v1" }, db);
     const completedResult = await submitAnswerAction(attemptId, { questionIndex: 1, userAnswer: "I walked my dog." }, db);
-    expect(completedResult.ok).toBe(true);
+    if (!completedResult.ok) throw new Error("expected ok");
     expect(completedResult.completed).toBe(true);
 
     // Capture state after completion
