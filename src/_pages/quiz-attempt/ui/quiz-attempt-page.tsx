@@ -13,6 +13,7 @@ export function QuizAttemptPage({ attemptId, quizId, quizName, question }: QuizA
     <div className="mx-auto flex max-w-xl flex-col gap-6">
       <h1 className="text-xl font-semibold tracking-tight">{quizName}</h1>
       <QuizPlayer
+        key={question.questionIndex}
         attemptId={attemptId}
         quizId={quizId}
         questionIndex={question.questionIndex}
