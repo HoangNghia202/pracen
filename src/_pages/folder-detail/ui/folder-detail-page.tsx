@@ -4,6 +4,7 @@ import { RenameFolderDialog } from "@/features/rename-folder";
 import { DeleteFolderButton } from "@/features/delete-folder";
 import { AddVocabDialog } from "@/features/add-vocab-manual";
 import { UploadVocabDialog } from "@/features/upload-vocab-file";
+import { CreateQuizDialog } from "@/features/create-quiz";
 import { VocabTable } from "@/widgets/vocab-table";
 import type { Folder } from "@/entities/folder";
 import type { VocabItem } from "@/entities/vocab-item";
@@ -30,6 +31,7 @@ export function FolderDetailPage({ folder, items }: FolderDetailPageProps) {
       <div className="flex items-center gap-2">
         <AddVocabDialog folderId={folder.id} />
         <UploadVocabDialog folderId={folder.id} />
+        <CreateQuizDialog folders={[{ id: folder.id, name: folder.name }]} initialFolderId={folder.id} />
       </div>
       <VocabTable items={items} />
     </div>
