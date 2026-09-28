@@ -5,7 +5,7 @@ import { createUser } from "@/entities/user";
 import { createFolder } from "@/entities/folder";
 import { createQuiz } from "@/entities/quiz";
 import { createQuizQuestions } from "@/entities/quiz-question";
-import { createAttempt } from "@/entities/quiz-attempt";
+import { createAttempt, getAttemptById, listAnswersByAttempt } from "@/entities/quiz-attempt";
 import { gradeSentenceAnswer } from "@/features/grade-sentence-answer";
 import { submitAnswerAction } from "./submit-quiz-answer.server";
 
@@ -77,24 +77,54 @@ describe("submitAnswerAction", () => {
 
   it("rejects resubmitting an already-answered question", async () => {
     const db = await createTestDb();
-    const { attemptId } = await setup(db);
-    await submitAnswerAction(attemptId, { questionIndex: 0, userAnswer: "v1" }, db);
+    const { attemptId, userId } = await setup(db);
+    const firstResult = await submitAnswerAction(attemptId, { questionIndex: 0, userAnswer: "v1" }, db);
+    expect(firstResult.ok).toBe(true);
 
+    // Capture state after first submission
+    const attemptAfterFirst = await getAttemptById(attemptId, userId, db);
+    const answersAfterFirst = await listAnswersByAttempt(attemptId, db);
+
+    // Attempt to resubmit
     const result = await submitAnswerAction(attemptId, { questionIndex: 0, userAnswer: "v1" }, db);
 
-    expect(result).toMatchObject({ ok: false });
+    // Verify guard fired with correct error message
+    expect(result).toEqual({ ok: false, error: "This question was already answered" });
+
+    // Verify no side effect: state unchanged
+    const attemptAfterReject = await getAttemptById(attemptId, userId, db);
+    const answersAfterReject = await listAnswersByAttempt(attemptId, db);
+
+    expect(attemptAfterReject?.currentIndex).toBe(attemptAfterFirst?.currentIndex);
+    expect(answersAfterReject.length).toBe(answersAfterFirst.length);
   });
 
   it("rejects submitting to an already-completed attempt", async () => {
     const db = await createTestDb();
-    const { attemptId } = await setup(db);
+    const { attemptId, userId } = await setup(db);
     vi.mocked(gradeSentenceAnswer).mockResolvedValue({ isCorrect: true, feedback: "Nicely done." });
     await submitAnswerAction(attemptId, { questionIndex: 0, userAnswer: "v1" }, db);
-    await submitAnswerAction(attemptId, { questionIndex: 1, userAnswer: "I walked my dog." }, db);
+    const completedResult = await submitAnswerAction(attemptId, { questionIndex: 1, userAnswer: "I walked my dog." }, db);
+    expect(completedResult.ok).toBe(true);
+    expect(completedResult.completed).toBe(true);
 
+    // Capture state after completion
+    const attemptAfterCompletion = await getAttemptById(attemptId, userId, db);
+    const answersAfterCompletion = await listAnswersByAttempt(attemptId, db);
+
+    // Attempt to submit to completed attempt
     const result = await submitAnswerAction(attemptId, { questionIndex: 2, userAnswer: "anything" }, db);
 
-    expect(result).toMatchObject({ ok: false });
+    // Verify guard fired with correct error message
+    expect(result).toEqual({ ok: false, error: "This attempt is already finished" });
+
+    // Verify no side effect: state unchanged
+    const attemptAfterReject = await getAttemptById(attemptId, userId, db);
+    const answersAfterReject = await listAnswersByAttempt(attemptId, db);
+
+    expect(attemptAfterReject?.status).toBe("completed");
+    expect(attemptAfterReject?.currentIndex).toBe(attemptAfterCompletion?.currentIndex);
+    expect(answersAfterReject.length).toBe(answersAfterCompletion.length);
   });
 
   it("rejects an attempt that doesn't belong to the requester", async () => {
