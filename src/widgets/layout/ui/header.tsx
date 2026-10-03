@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { CaretDown } from "@phosphor-icons/react/dist/ssr";
-import { APP_NAME } from "@/shared/config/app-config";
+import { APP_NAME } from "@/shared/config";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import {
   DropdownMenu,

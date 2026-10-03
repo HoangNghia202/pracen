@@ -49,4 +49,16 @@ export default defineConfig([
       "fsd/no-public-api-sidestep": "off",
     },
   },
+  {
+    // Same `_app` exemption as above, for the pages layer: each page's
+    // `index.tsx` is the Next.js route's data-loading container (the only
+    // thing `app/**/page.tsx` imports, per FSD - route files stay a plain
+    // re-export), so it's the one place per page that calls `auth()` from
+    // `@/_app/api-routes/auth` to read the session before fetching data.
+    files: ["./src/_pages/**/index.tsx"],
+    rules: {
+      "fsd/forbidden-imports": "off",
+      "fsd/no-public-api-sidestep": "off",
+    },
+  },
 ]);

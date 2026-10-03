@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { List } from "@phosphor-icons/react";
-import { APP_NAME } from "@/shared/config/app-config";
+import { APP_NAME } from "@/shared/config";
 import { Button } from "@/shared/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/shared/ui/sheet";
 import { NavLinks } from "./nav-links";
