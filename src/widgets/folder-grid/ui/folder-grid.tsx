@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Books } from "@phosphor-icons/react/dist/ssr";
+import { Books, FolderSimple } from "@phosphor-icons/react/dist/ssr";
 import { formatDate } from "@/shared/lib/format-date";
 import type { FolderWithStats } from "@/entities/folder";
 
@@ -11,9 +11,13 @@ interface FolderGridProps {
 export function FolderGrid({ folders, hasFilter }: FolderGridProps) {
   if (folders.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed py-16 text-center">
-        <Books className="text-muted-foreground size-8" />
-        <p className="text-sm">{hasFilter ? "No folders match your search" : "No folders yet"}</p>
+      <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-card/50 py-16 text-center">
+        <span className="flex size-12 items-center justify-center rounded-full bg-brand-amber-light text-brand-amber-dark">
+          <Books className="size-6" />
+        </span>
+        <p className="text-sm text-muted-foreground">
+          {hasFilter ? "No folders match your search" : "No folders yet"}
+        </p>
       </div>
     );
   }
@@ -24,10 +28,13 @@ export function FolderGrid({ folders, hasFilter }: FolderGridProps) {
         <Link
           key={folder.id}
           href={`/library/${folder.id}`}
-          className="hover:border-primary/40 rounded-lg border p-4 transition-colors"
+          className="group flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-brand-sm transition-all hover:-translate-y-0.5 hover:border-brand-amber/60 hover:shadow-brand"
         >
-          <p className="text-lg font-medium">{folder.name}</p>
-          <p className="text-muted-foreground font-mono text-xs">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-brand-amber-light text-brand-amber-dark transition-colors group-hover:bg-brand-amber group-hover:text-brand-ink">
+            <FolderSimple weight="fill" className="size-5" />
+          </span>
+          <p className="font-heading text-base font-medium text-foreground">{folder.name}</p>
+          <p className="font-mono text-xs text-muted-foreground">
             {folder.wordCount} {folder.wordCount === 1 ? "word" : "words"} · edited{" "}
             {formatDate(folder.updatedAt)}
           </p>

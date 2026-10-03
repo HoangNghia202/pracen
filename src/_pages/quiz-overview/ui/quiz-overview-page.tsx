@@ -29,15 +29,18 @@ export function QuizOverviewPage({
 }: QuizOverviewPageProps) {
   return (
     <div className="flex flex-col gap-6">
-      <Link href="/quiz" className="text-muted-foreground flex items-center gap-1 text-sm">
+      <Link
+        href="/quiz"
+        className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+      >
         <ArrowLeft className="size-4" />
         Back to Quiz
       </Link>
-      <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-semibold tracking-tight">{quiz.name}</h1>
-        <p className="text-muted-foreground font-mono text-xs">
+      <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-brand-sm">
+        <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">{quiz.name}</h1>
+        <p className="font-mono text-xs text-muted-foreground">
           From{" "}
-          <Link href={`/library/${quiz.folderId}`} className="underline">
+          <Link href={`/library/${quiz.folderId}`} className="underline underline-offset-2">
             {folderName}
           </Link>{" "}
           · {questionCount} {questionCount === 1 ? "question" : "questions"}
@@ -49,10 +52,12 @@ export function QuizOverviewPage({
             </Badge>
           ))}
         </div>
+        <div className="self-start">
+          <StartQuizButton quizId={quiz.id} hasInProgressAttempt={Boolean(inProgressAttempt)} />
+        </div>
       </div>
-      <StartQuizButton quizId={quiz.id} hasInProgressAttempt={Boolean(inProgressAttempt)} />
-      <div className="flex flex-col gap-2">
-        <h2 className="text-lg font-medium">Attempt history</h2>
+      <div className="flex flex-col gap-3">
+        <h2 className="font-heading text-lg font-medium text-foreground">Attempt history</h2>
         <AttemptHistory quizId={quiz.id} attempts={completedAttempts} />
       </div>
     </div>

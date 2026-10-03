@@ -16,9 +16,10 @@ test.describe("authentication", () => {
     await page.getByRole("button", { name: "Create account" }).click();
 
     await expect(page).toHaveURL("http://localhost:3000/");
-    await expect(page.getByText(email, { exact: false })).toBeVisible();
 
-    await page.getByRole("button", { name: "Log out" }).click();
+    await page.getByRole("button", { name: "TU" }).click();
+    await expect(page.getByText(email, { exact: false })).toBeVisible();
+    await page.getByRole("menuitem", { name: "Log out" }).click();
     await expect(page).toHaveURL(/\/login$/);
   });
 });

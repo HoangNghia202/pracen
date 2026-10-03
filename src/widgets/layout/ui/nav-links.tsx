@@ -21,7 +21,7 @@ export function NavLinks({
   const pathname = usePathname();
 
   return (
-    <nav className={cn("flex flex-col gap-1", className)}>
+    <nav className={cn("flex flex-col gap-1.5", className)}>
       {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
         const isActive = href === "/" ? pathname === "/" : pathname.startsWith(href);
         return (
@@ -31,13 +31,13 @@ export function NavLinks({
             onClick={onNavigate}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all active:translate-y-px",
+              "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-all active:translate-y-px",
               isActive
-                ? "bg-accent text-foreground"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                ? "bg-brand-amber text-brand-ink shadow-brand-sm"
+                : "text-muted-foreground hover:bg-brand-amber-light hover:text-foreground"
             )}
           >
-            <Icon weight={isActive ? "fill" : "regular"} className="size-4" />
+            <Icon weight={isActive ? "fill" : "regular"} className="size-[1.1rem]" />
             {label}
           </Link>
         );

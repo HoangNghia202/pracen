@@ -16,7 +16,13 @@ export function MobileNav() {
           <List weight="regular" className="size-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-60">
+      <SheetContent side="left" className="w-64 bg-sidebar">
+        <div className="flex items-center gap-2 p-4 pb-0">
+          <span className="flex size-8 items-center justify-center rounded-lg bg-brand-amber text-sm font-bold text-brand-ink">
+            V
+          </span>
+          <span className="font-heading text-base font-semibold text-foreground">Vocab</span>
+        </div>
         <NavLinks className="p-4" onNavigate={() => setOpen(false)} />
       </SheetContent>
     </Sheet>

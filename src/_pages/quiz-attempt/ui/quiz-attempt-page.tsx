@@ -11,7 +11,7 @@ interface QuizAttemptPageProps {
 export function QuizAttemptPage({ attemptId, quizId, quizName, question }: QuizAttemptPageProps) {
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-6">
-      <h1 className="text-xl font-semibold tracking-tight">{quizName}</h1>
+      <h1 className="font-heading text-xl font-semibold tracking-tight text-foreground">{quizName}</h1>
       <QuizPlayer
         key={question.questionIndex}
         attemptId={attemptId}

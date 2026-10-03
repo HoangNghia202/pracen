@@ -5,39 +5,58 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.55 0.22 258);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  /* Brand palette: warm parchment cream, olive, amber and espresso ink. */
+  --background: #fcf0da;
+  --foreground: #4c4541;
+  --card: #fffcf5;
+  --card-foreground: #4c4541;
+  --popover: #fffcf5;
+  --popover-foreground: #4c4541;
+  --primary: #f2c46a;
+  --primary-foreground: #4c4541;
+  --secondary: #ece8d2;
+  --secondary-foreground: #4c4541;
+  --muted: #f3ead9;
+  --muted-foreground: #8c8178;
+  --accent: #fbe6b8;
+  --accent-foreground: #4c4541;
   --destructive: oklch(0.577 0.245 27.325);
   --success: oklch(0.52 0.15 145);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.55 0.22 258 / 0.5);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --border: #e9dcbe;
+  --input: #e9dcbe;
+  --ring: #f2c46a;
+  --chart-1: #f2c46a;
+  --chart-2: #aeac78;
+  --chart-3: #cc7a54;
+  --chart-4: #5e8c83;
+  --chart-5: #4c4541;
+  --radius: 0.75rem;
+  --sidebar: #f6e7c8;
+  --sidebar-foreground: #4c4541;
+  --sidebar-primary: #f2c46a;
+  --sidebar-primary-foreground: #4c4541;
+  --sidebar-accent: #fbe6b8;
+  --sidebar-accent-foreground: #4c4541;
+  --sidebar-border: #e9dcbe;
+  --sidebar-ring: #f2c46a;
+
+  /* Static brand swatches, independent of light/dark semantics - for icon
+     badges, decorative panels and anywhere a specific brand hue is wanted
+     regardless of theme. */
+  --brand-cream: #fcf0da;
+  --brand-cream-deep: #f2e2c2;
+  --brand-olive: #aeac78;
+  --brand-olive-light: #e7e4cb;
+  --brand-olive-dark: #8c8a5e;
+  --brand-amber: #f2c46a;
+  --brand-amber-light: #fbe6b8;
+  --brand-amber-dark: #d9a53f;
+  --brand-ink: #4c4541;
+  --brand-ink-light: #8a7f78;
+  --brand-teal: #5e8c83;
+  --brand-teal-light: #dce8e3;
+  --brand-coral: #cc7a54;
+  --brand-coral-light: #f3dece;
 }
 
 @theme inline {
@@ -83,41 +102,58 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Expose brand swatches as Tailwind utilities: bg-brand-amber,
+     text-brand-ink, border-brand-olive, etc. */
+  --color-brand-cream: var(--brand-cream);
+  --color-brand-cream-deep: var(--brand-cream-deep);
+  --color-brand-olive: var(--brand-olive);
+  --color-brand-olive-light: var(--brand-olive-light);
+  --color-brand-olive-dark: var(--brand-olive-dark);
+  --color-brand-amber: var(--brand-amber);
+  --color-brand-amber-light: var(--brand-amber-light);
+  --color-brand-amber-dark: var(--brand-amber-dark);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-ink-light: var(--brand-ink-light);
+  --color-brand-teal: var(--brand-teal);
+  --color-brand-teal-light: var(--brand-teal-light);
+  --color-brand-coral: var(--brand-coral);
+  --color-brand-coral-light: var(--brand-coral-light);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.65 0.19 258);
-  --primary-foreground: oklch(0.145 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: #241f1c;
+  --foreground: #fbefd8;
+  --card: #2e2824;
+  --card-foreground: #fbefd8;
+  --popover: #2e2824;
+  --popover-foreground: #fbefd8;
+  --primary: #f2c46a;
+  --primary-foreground: #241f1c;
+  --secondary: #3a332c;
+  --secondary-foreground: #fbefd8;
+  --muted: #332c26;
+  --muted-foreground: #c9bea9;
+  --accent: #46381f;
+  --accent-foreground: #fbefd8;
   --destructive: oklch(0.704 0.191 22.216);
   --success: oklch(0.75 0.17 145);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.65 0.19 258 / 0.5);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --ring: #f2c46a;
+  --chart-1: #f2c46a;
+  --chart-2: #aeac78;
+  --chart-3: #cc7a54;
+  --chart-4: #5e8c83;
+  --chart-5: #fbefd8;
+  --sidebar: #2e2824;
+  --sidebar-foreground: #fbefd8;
+  --sidebar-primary: #f2c46a;
+  --sidebar-primary-foreground: #241f1c;
+  --sidebar-accent: #46381f;
+  --sidebar-accent-foreground: #fbefd8;
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-ring: #f2c46a;
 }
 
 @layer base {
@@ -130,4 +166,24 @@
   html {
     @apply font-sans;
   }
+}
+
+/* Tinted elevation - shadows carry the brand ink hue instead of pure black,
+   so cards read as warm/soft rather than generic grey SaaS panels. */
+@utility shadow-brand-sm {
+  box-shadow:
+    0 1px 2px -1px color-mix(in srgb, var(--brand-ink) 10%, transparent),
+    0 1px 3px 0 color-mix(in srgb, var(--brand-ink) 6%, transparent);
+}
+
+@utility shadow-brand {
+  box-shadow:
+    0 2px 6px -2px color-mix(in srgb, var(--brand-ink) 14%, transparent),
+    0 8px 20px -6px color-mix(in srgb, var(--brand-ink) 12%, transparent);
+}
+
+@utility shadow-brand-lg {
+  box-shadow:
+    0 8px 16px -4px color-mix(in srgb, var(--brand-ink) 16%, transparent),
+    0 20px 40px -12px color-mix(in srgb, var(--brand-ink) 18%, transparent);
 }

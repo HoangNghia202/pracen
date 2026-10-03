@@ -9,11 +9,19 @@ export default async function MainLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <div className="flex min-h-dvh flex-col">
-      <Header user={{ name: session.user.name ?? null, email: session.user.email! }} />
-      <div className="flex flex-1">
+    <div className="flex h-dvh flex-col overflow-hidden bg-background">
+      <Header
+        user={{
+          name: session.user.name ?? null,
+          email: session.user.email!,
+          image: session.user.image ?? null,
+        }}
+      />
+      <div className="flex flex-1 overflow-hidden">
         <DesktopSidebar />
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 md:px-6">{children}</main>
+        <main className="flex-1 overflow-y-auto">
+          <div className="mx-auto w-full max-w-6xl px-4 py-8 md:px-6">{children}</div>
+        </main>
       </div>
     </div>
   );
