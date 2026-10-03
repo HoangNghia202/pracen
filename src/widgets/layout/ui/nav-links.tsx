@@ -33,7 +33,7 @@ export function NavLinks({
             className={cn(
               "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-all active:translate-y-px",
               isActive
-                ? "bg-brand-amber text-brand-ink shadow-brand-sm"
+                ? "bg-primary text-primary-foreground shadow-brand-sm"
                 : "text-muted-foreground hover:bg-brand-amber-light hover:text-foreground"
             )}
           >

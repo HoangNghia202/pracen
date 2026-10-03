@@ -5,58 +5,59 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Brand palette: warm parchment cream, olive, amber and espresso ink. */
-  --background: #fcf0da;
-  --foreground: #4c4541;
-  --card: #fffcf5;
-  --card-foreground: #4c4541;
-  --popover: #fffcf5;
-  --popover-foreground: #4c4541;
-  --primary: #f2c46a;
-  --primary-foreground: #4c4541;
-  --secondary: #ece8d2;
-  --secondary-foreground: #4c4541;
-  --muted: #f3ead9;
-  --muted-foreground: #8c8178;
-  --accent: #fbe6b8;
-  --accent-foreground: #4c4541;
+  /* Brand palette: Electric Focus - cool neutral base, electric blue
+     primary, warm amber reward accent. */
+  --background: #f5f6f8;
+  --foreground: #1f2430;
+  --card: #ffffff;
+  --card-foreground: #1f2430;
+  --popover: #ffffff;
+  --popover-foreground: #1f2430;
+  --primary: #3b6cf6;
+  --primary-foreground: #ffffff;
+  --secondary: #e7eaf2;
+  --secondary-foreground: #1f2430;
+  --muted: #ebedf2;
+  --muted-foreground: #737c94;
+  --accent: #e1e9fe;
+  --accent-foreground: #1f2430;
   --destructive: oklch(0.577 0.245 27.325);
   --success: oklch(0.52 0.15 145);
-  --border: #e9dcbe;
-  --input: #e9dcbe;
-  --ring: #f2c46a;
-  --chart-1: #f2c46a;
-  --chart-2: #aeac78;
-  --chart-3: #cc7a54;
-  --chart-4: #5e8c83;
-  --chart-5: #4c4541;
+  --border: #dde1ea;
+  --input: #dde1ea;
+  --ring: #3b6cf6;
+  --chart-1: #3b6cf6;
+  --chart-2: #ffb020;
+  --chart-3: #17a2b8;
+  --chart-4: #6c7a99;
+  --chart-5: #1f2430;
   --radius: 0.75rem;
-  --sidebar: #f6e7c8;
-  --sidebar-foreground: #4c4541;
-  --sidebar-primary: #f2c46a;
-  --sidebar-primary-foreground: #4c4541;
-  --sidebar-accent: #fbe6b8;
-  --sidebar-accent-foreground: #4c4541;
-  --sidebar-border: #e9dcbe;
-  --sidebar-ring: #f2c46a;
+  --sidebar: #edeff5;
+  --sidebar-foreground: #1f2430;
+  --sidebar-primary: #3b6cf6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e1e9fe;
+  --sidebar-accent-foreground: #1f2430;
+  --sidebar-border: #dde1ea;
+  --sidebar-ring: #3b6cf6;
 
   /* Static brand swatches, independent of light/dark semantics - for icon
      badges, decorative panels and anywhere a specific brand hue is wanted
      regardless of theme. */
-  --brand-cream: #fcf0da;
-  --brand-cream-deep: #f2e2c2;
-  --brand-olive: #aeac78;
-  --brand-olive-light: #e7e4cb;
-  --brand-olive-dark: #8c8a5e;
-  --brand-amber: #f2c46a;
-  --brand-amber-light: #fbe6b8;
-  --brand-amber-dark: #d9a53f;
-  --brand-ink: #4c4541;
-  --brand-ink-light: #8a7f78;
-  --brand-teal: #5e8c83;
-  --brand-teal-light: #dce8e3;
-  --brand-coral: #cc7a54;
-  --brand-coral-light: #f3dece;
+  --brand-cream: #f5f6f8;
+  --brand-cream-deep: #e9ecf2;
+  --brand-olive: #6c7a99;
+  --brand-olive-light: #e4e7ef;
+  --brand-olive-dark: #4b5674;
+  --brand-amber: #3b6cf6;
+  --brand-amber-light: #e1e9fe;
+  --brand-amber-dark: #2a4fc9;
+  --brand-ink: #1f2430;
+  --brand-ink-light: #737c94;
+  --brand-teal: #17a2b8;
+  --brand-teal-light: #d9f1f5;
+  --brand-coral: #ffb020;
+  --brand-coral-light: #ffefcf;
 }
 
 @theme inline {
@@ -122,38 +123,38 @@
 }
 
 .dark {
-  --background: #241f1c;
-  --foreground: #fbefd8;
-  --card: #2e2824;
-  --card-foreground: #fbefd8;
-  --popover: #2e2824;
-  --popover-foreground: #fbefd8;
-  --primary: #f2c46a;
-  --primary-foreground: #241f1c;
-  --secondary: #3a332c;
-  --secondary-foreground: #fbefd8;
-  --muted: #332c26;
-  --muted-foreground: #c9bea9;
-  --accent: #46381f;
-  --accent-foreground: #fbefd8;
+  --background: #12151d;
+  --foreground: #edeff5;
+  --card: #1a1e29;
+  --card-foreground: #edeff5;
+  --popover: #1a1e29;
+  --popover-foreground: #edeff5;
+  --primary: #5b82ff;
+  --primary-foreground: #0b0f1a;
+  --secondary: #242938;
+  --secondary-foreground: #edeff5;
+  --muted: #1f2330;
+  --muted-foreground: #9aa3bd;
+  --accent: #223056;
+  --accent-foreground: #edeff5;
   --destructive: oklch(0.704 0.191 22.216);
   --success: oklch(0.75 0.17 145);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: #f2c46a;
-  --chart-1: #f2c46a;
-  --chart-2: #aeac78;
-  --chart-3: #cc7a54;
-  --chart-4: #5e8c83;
-  --chart-5: #fbefd8;
-  --sidebar: #2e2824;
-  --sidebar-foreground: #fbefd8;
-  --sidebar-primary: #f2c46a;
-  --sidebar-primary-foreground: #241f1c;
-  --sidebar-accent: #46381f;
-  --sidebar-accent-foreground: #fbefd8;
+  --ring: #5b82ff;
+  --chart-1: #5b82ff;
+  --chart-2: #ffb020;
+  --chart-3: #17a2b8;
+  --chart-4: #8793b3;
+  --chart-5: #edeff5;
+  --sidebar: #1a1e29;
+  --sidebar-foreground: #edeff5;
+  --sidebar-primary: #5b82ff;
+  --sidebar-primary-foreground: #0b0f1a;
+  --sidebar-accent: #223056;
+  --sidebar-accent-foreground: #edeff5;
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: #f2c46a;
+  --sidebar-ring: #5b82ff;
 }
 
 @layer base {
@@ -169,7 +170,7 @@
 }
 
 /* Tinted elevation - shadows carry the brand ink hue instead of pure black,
-   so cards read as warm/soft rather than generic grey SaaS panels. */
+   so cards read as cool/soft rather than generic grey SaaS panels. */
 @utility shadow-brand-sm {
   box-shadow:
     0 1px 2px -1px color-mix(in srgb, var(--brand-ink) 10%, transparent),

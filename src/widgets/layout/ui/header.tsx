@@ -1,4 +1,5 @@
 import { CaretDown } from "@phosphor-icons/react/dist/ssr";
+import { APP_NAME } from "@/shared/config/app-config";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import {
   DropdownMenu,
@@ -31,10 +32,10 @@ export function Header({ user }: HeaderProps) {
       <div className="flex items-center gap-3">
         <MobileNav />
         <div className="flex items-center gap-2">
-          <span className="flex size-8 items-center justify-center rounded-lg bg-brand-amber text-sm font-bold text-brand-ink">
-            V
+          <span className="flex size-8 items-center justify-center rounded-lg bg-brand-amber text-sm font-bold text-white">
+            {APP_NAME[0]}
           </span>
-          <span className="font-heading text-base font-semibold text-foreground">Vocab</span>
+          <span className="font-heading text-base font-semibold text-foreground">{APP_NAME}</span>
         </div>
       </div>
 
@@ -42,7 +43,7 @@ export function Header({ user }: HeaderProps) {
         <DropdownMenuTrigger className="flex items-center gap-2 rounded-full p-1 pr-2 transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 outline-none">
           <Avatar className="ring-2 ring-brand-amber-light">
             {user.image && <AvatarImage src={user.image} alt={displayName} />}
-            <AvatarFallback className="bg-brand-amber text-sm font-semibold text-brand-ink">
+            <AvatarFallback className="bg-brand-amber text-sm font-semibold text-white">
               {initialsFor(user.name, user.email)}
             </AvatarFallback>
           </Avatar>
@@ -52,7 +53,7 @@ export function Header({ user }: HeaderProps) {
           <DropdownMenuLabel className="flex items-center gap-3 px-2 py-2">
             <Avatar size="lg">
               {user.image && <AvatarImage src={user.image} alt={displayName} />}
-              <AvatarFallback className="bg-brand-amber text-sm font-semibold text-brand-ink">
+              <AvatarFallback className="bg-brand-amber text-sm font-semibold text-white">
                 {initialsFor(user.name, user.email)}
               </AvatarFallback>
             </Avatar>

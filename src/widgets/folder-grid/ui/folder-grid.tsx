@@ -30,7 +30,7 @@ export function FolderGrid({ folders, hasFilter }: FolderGridProps) {
           href={`/library/${folder.id}`}
           className="group flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-brand-sm transition-all hover:-translate-y-0.5 hover:border-brand-amber/60 hover:shadow-brand"
         >
-          <span className="flex size-10 items-center justify-center rounded-xl bg-brand-amber-light text-brand-amber-dark transition-colors group-hover:bg-brand-amber group-hover:text-brand-ink">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-brand-amber-light text-brand-amber-dark transition-colors group-hover:bg-brand-amber group-hover:text-white">
             <FolderSimple weight="fill" className="size-5" />
           </span>
           <p className="font-heading text-base font-medium text-foreground">{folder.name}</p>
