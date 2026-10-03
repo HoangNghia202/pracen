@@ -1,5 +1,6 @@
 import { createTestDb } from "@/shared/testing";
 import { createUser } from "@/entities/user";
+import { createVocabItems } from "@/entities/vocab-item";
 import {
   listFoldersByUser,
   getFolderById,
@@ -7,6 +8,7 @@ import {
   renameFolder,
   deleteFolder,
   touchFolder,
+  getLibraryStats,
 } from "./folder.server";
 
 async function makeUser(db: Awaited<ReturnType<typeof createTestDb>>, email: string) {
@@ -95,4 +97,26 @@ describe("folder entity", () => {
     expect(await getFolderById(folder.id, ownerId, db)).toBeNull();
   });
 
+  it("counts folders and words across folders, scoped to the requesting user", async () => {
+    const db = await createTestDb();
+    const ownerId = await makeUser(db, "owner@example.com");
+    const otherId = await makeUser(db, "other@example.com");
+    const animals = await createFolder({ userId: ownerId, name: "Animals" }, db);
+    await createFolder({ userId: ownerId, name: "Empty" }, db);
+    await createVocabItems(animals.id, [
+      { word: "Dog", meaning: "A dog" },
+      { word: "Cat", meaning: "A cat" },
+    ], db);
+    const otherFolder = await createFolder({ userId: otherId, name: "Other" }, db);
+    await createVocabItems(otherFolder.id, [{ word: "Fish", meaning: "A fish" }], db);
+
+    expect(await getLibraryStats(ownerId, db)).toEqual({ folderCount: 2, wordCount: 2 });
+  });
+
+  it("returns zero stats for a user with no folders", async () => {
+    const db = await createTestDb();
+    const ownerId = await makeUser(db, "owner@example.com");
+
+    expect(await getLibraryStats(ownerId, db)).toEqual({ folderCount: 0, wordCount: 0 });
+  });
 });

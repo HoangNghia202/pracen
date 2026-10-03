@@ -1,7 +1,7 @@
-import { db as defaultDb, quizAttempts, attemptAnswers, schema } from "@/shared/api";
-import { and, asc, desc, eq } from "drizzle-orm";
+import { db as defaultDb, quizAttempts, attemptAnswers, quizzes, schema } from "@/shared/api";
+import { and, asc, count, desc, eq } from "drizzle-orm";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
-import type { AttemptAnswer, QuestionSnapshotItem, QuizAttempt } from "../model/types";
+import type { AttemptAnswer, AttemptWithQuizName, QuestionSnapshotItem, QuizAttempt } from "../model/types";
 
 type Db = PgDatabase<PgQueryResultHKT, typeof schema>;
 
@@ -92,4 +92,46 @@ export async function recordAnswer(
 
 export async function listAnswersByAttempt(attemptId: string, db: Db = defaultDb): Promise<AttemptAnswer[]> {
   return db.select().from(attemptAnswers).where(eq(attemptAnswers.attemptId, attemptId)).orderBy(asc(attemptAnswers.questionIndex));
+}
+
+function selectAttemptWithQuizName(db: Db) {
+  return db
+    .select({
+      id: quizAttempts.id,
+      quizId: quizAttempts.quizId,
+      quizName: quizzes.name,
+      status: quizAttempts.status,
+      currentIndex: quizAttempts.currentIndex,
+      totalQuestions: quizAttempts.totalQuestions,
+      score: quizAttempts.score,
+      startedAt: quizAttempts.startedAt,
+      finishedAt: quizAttempts.finishedAt,
+    })
+    .from(quizAttempts)
+    .innerJoin(quizzes, eq(quizzes.id, quizAttempts.quizId));
+}
+
+export async function listInProgressAttempts(userId: string, db: Db = defaultDb): Promise<AttemptWithQuizName[]> {
+  return selectAttemptWithQuizName(db)
+    .where(and(eq(quizAttempts.userId, userId), eq(quizAttempts.status, "in_progress")))
+    .orderBy(desc(quizAttempts.startedAt));
+}
+
+export async function listRecentCompletedAttempts(
+  userId: string,
+  limit: number,
+  db: Db = defaultDb
+): Promise<AttemptWithQuizName[]> {
+  return selectAttemptWithQuizName(db)
+    .where(and(eq(quizAttempts.userId, userId), eq(quizAttempts.status, "completed")))
+    .orderBy(desc(quizAttempts.finishedAt))
+    .limit(limit);
+}
+
+export async function getCompletedAttemptCount(userId: string, db: Db = defaultDb): Promise<number> {
+  const rows = await db
+    .select({ value: count() })
+    .from(quizAttempts)
+    .where(and(eq(quizAttempts.userId, userId), eq(quizAttempts.status, "completed")));
+  return rows[0]?.value ?? 0;
 }

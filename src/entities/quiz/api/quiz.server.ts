@@ -76,3 +76,8 @@ export async function deleteQuiz(id: string, db: Db = defaultDb): Promise<boolea
   const rows = await db.delete(quizzes).where(eq(quizzes.id, id)).returning();
   return rows.length > 0;
 }
+
+export async function getQuizCountByUser(userId: string, db: Db = defaultDb): Promise<number> {
+  const rows = await db.select({ value: count() }).from(quizzes).where(eq(quizzes.userId, userId));
+  return rows[0]?.value ?? 0;
+}

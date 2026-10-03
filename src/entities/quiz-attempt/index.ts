@@ -7,6 +7,9 @@ export {
   listAttemptsByQuiz,
   recordAnswer,
   listAnswersByAttempt,
+  listInProgressAttempts,
+  listRecentCompletedAttempts,
+  getCompletedAttemptCount,
 } from "./api/quiz-attempt.server";
 export type {
   AttemptStatus,
@@ -17,4 +20,5 @@ export type {
   AttemptAnswer,
   QuestionLike,
   ResolvedQuestion,
+  AttemptWithQuizName,
 } from "./model/types";

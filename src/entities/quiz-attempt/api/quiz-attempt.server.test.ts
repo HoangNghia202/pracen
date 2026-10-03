@@ -10,6 +10,9 @@ import {
   listAttemptsByQuiz,
   recordAnswer,
   listAnswersByAttempt,
+  listInProgressAttempts,
+  listRecentCompletedAttempts,
+  getCompletedAttemptCount,
 } from "./quiz-attempt.server";
 
 async function makeAttemptReady(db: Awaited<ReturnType<typeof createTestDb>>) {
@@ -112,5 +115,78 @@ describe("quiz attempt entity", () => {
 
     const answers = await listAnswersByAttempt(attempt.id, db);
     expect(answers.map((a) => a.word)).toEqual(["Dog", "Cat"]);
+  });
+
+  async function makeSecondQuiz(db: Awaited<ReturnType<typeof createTestDb>>, userId: string) {
+    const folder = await createFolder({ userId, name: "Colors" }, db);
+    const quiz = await createQuiz(
+      { folderId: folder.id, userId, name: "Color Quiz", questionTypes: ["meaning"], vocabItemIds: ["v3", "v4"], shuffleQuestions: false, shuffleAnswers: false },
+      db
+    );
+    const questions = await createQuizQuestions(
+      quiz.id,
+      [
+        { orderIndex: 0, questionType: "meaning", vocabItemId: "v3", word: "Red", meaning: "A color", choices: [{ id: "v3", word: "Red", meaning: "A color" }] },
+        { orderIndex: 1, questionType: "meaning", vocabItemId: "v4", word: "Blue", meaning: "A color", choices: [{ id: "v4", word: "Blue", meaning: "A color" }] },
+      ],
+      db
+    );
+    return { quizId: quiz.id, questions };
+  }
+
+  it("lists in-progress attempts across every quiz for the requesting user, with quiz name", async () => {
+    const db = await createTestDb();
+    const { userId, quizId, questions } = await makeAttemptReady(db);
+    const second = await makeSecondQuiz(db, userId);
+    const other = await createUser({ email: "other@example.com", passwordHash: "hash" }, db);
+
+    const snapshot1 = questions.map((q) => ({ questionId: q.id, choiceOrder: null }));
+    const inProgress = await createAttempt({ quizId, userId, questionsSnapshot: snapshot1 }, db);
+    const snapshot2 = second.questions.map((q) => ({ questionId: q.id, choiceOrder: null }));
+    const completed = await createAttempt({ quizId: second.quizId, userId, questionsSnapshot: snapshot2 }, db);
+    await recordAnswer({ attemptId: completed.id, questionIndex: 0, questionType: "meaning", word: "Red", meaning: "A color", userAnswer: "v3", isCorrect: true }, db);
+    await recordAnswer({ attemptId: completed.id, questionIndex: 1, questionType: "meaning", word: "Blue", meaning: "A color", userAnswer: "v4", isCorrect: true }, db);
+
+    const list = await listInProgressAttempts(userId, db);
+    expect(list).toHaveLength(1);
+    expect(list[0]).toMatchObject({ id: inProgress.id, quizId, quizName: "Animal Quiz" });
+    expect(await listInProgressAttempts(other.id, db)).toEqual([]);
+  });
+
+  it("lists recent completed attempts across quizzes for the requesting user, most recent first, respecting limit", async () => {
+    const db = await createTestDb();
+    const { userId, quizId, questions } = await makeAttemptReady(db);
+    const second = await makeSecondQuiz(db, userId);
+    const snapshot1 = questions.map((q) => ({ questionId: q.id, choiceOrder: null }));
+    const snapshot2 = second.questions.map((q) => ({ questionId: q.id, choiceOrder: null }));
+
+    const first = await createAttempt({ quizId, userId, questionsSnapshot: snapshot1 }, db);
+    await recordAnswer({ attemptId: first.id, questionIndex: 0, questionType: "meaning", word: "Dog", meaning: "A dog", userAnswer: "v1", isCorrect: true }, db);
+    await recordAnswer({ attemptId: first.id, questionIndex: 1, questionType: "meaning", word: "Cat", meaning: "A cat", userAnswer: "v2", isCorrect: true }, db);
+
+    await new Promise((r) => setTimeout(r, 10));
+
+    const second_ = await createAttempt({ quizId: second.quizId, userId, questionsSnapshot: snapshot2 }, db);
+    await recordAnswer({ attemptId: second_.id, questionIndex: 0, questionType: "meaning", word: "Red", meaning: "A color", userAnswer: "v3", isCorrect: true }, db);
+    await recordAnswer({ attemptId: second_.id, questionIndex: 1, questionType: "meaning", word: "Blue", meaning: "A color", userAnswer: "v4", isCorrect: false }, db);
+
+    const list = await listRecentCompletedAttempts(userId, 1, db);
+    expect(list).toHaveLength(1);
+    expect(list[0]).toMatchObject({ id: second_.id, quizName: "Color Quiz", score: 1, totalQuestions: 2 });
+
+    const full = await listRecentCompletedAttempts(userId, 10, db);
+    expect(full.map((a) => a.id)).toEqual([second_.id, first.id]);
+  });
+
+  it("counts only completed attempts, scoped to the requesting user", async () => {
+    const db = await createTestDb();
+    const { userId, quizId, questions } = await makeAttemptReady(db);
+    const snapshot = questions.map((q) => ({ questionId: q.id, choiceOrder: null }));
+    await createAttempt({ quizId, userId, questionsSnapshot: snapshot }, db);
+    const completed = await createAttempt({ quizId, userId, questionsSnapshot: snapshot }, db);
+    await recordAnswer({ attemptId: completed.id, questionIndex: 0, questionType: "meaning", word: "Dog", meaning: "A dog", userAnswer: "v1", isCorrect: true }, db);
+    await recordAnswer({ attemptId: completed.id, questionIndex: 1, questionType: "meaning", word: "Cat", meaning: "A cat", userAnswer: "v2", isCorrect: true }, db);
+
+    expect(await getCompletedAttemptCount(userId, db)).toBe(1);
   });
 });

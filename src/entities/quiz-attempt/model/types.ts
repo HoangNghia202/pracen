@@ -51,6 +51,20 @@ export interface QuestionLike {
   choices: QuestionChoice[] | null;
 }
 
+// Joined shape for dashboard queries that span every quiz a user owns,
+// rather than one quiz at a time like the rest of this entity's queries.
+export interface AttemptWithQuizName {
+  id: string;
+  quizId: string;
+  quizName: string;
+  status: AttemptStatus;
+  currentIndex: number;
+  totalQuestions: number;
+  score: number | null;
+  startedAt: Date;
+  finishedAt: Date | null;
+}
+
 export interface ResolvedQuestion {
   questionIndex: number;
   totalQuestions: number;

@@ -1,5 +1,5 @@
 import { db as defaultDb, folders, vocabItems, schema } from "@/shared/api";
-import { and, count, desc, eq, ilike, sql } from "drizzle-orm";
+import { and, count, countDistinct, desc, eq, ilike, sql } from "drizzle-orm";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import type { Folder, FolderSort, FolderWithStats } from "../model/types";
 
@@ -84,4 +84,19 @@ export async function touchFolder(id: string, db: Db = defaultDb): Promise<void>
     .update(folders)
     .set({ updatedAt: sql`now()` })
     .where(eq(folders.id, id));
+}
+
+export async function getLibraryStats(
+  userId: string,
+  db: Db = defaultDb
+): Promise<{ folderCount: number; wordCount: number }> {
+  const rows = await db
+    .select({
+      folderCount: countDistinct(folders.id),
+      wordCount: count(vocabItems.id),
+    })
+    .from(folders)
+    .leftJoin(vocabItems, eq(vocabItems.folderId, folders.id))
+    .where(eq(folders.userId, userId));
+  return rows[0] ?? { folderCount: 0, wordCount: 0 };
 }

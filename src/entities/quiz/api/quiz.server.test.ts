@@ -3,7 +3,7 @@ import { createUser } from "@/entities/user";
 import { createFolder } from "@/entities/folder";
 import { quizQuestions, folders } from "@/shared/api";
 import { eq } from "drizzle-orm";
-import { createQuiz, listQuizzesByUser, getQuizById, deleteQuiz } from "./quiz.server";
+import { createQuiz, listQuizzesByUser, getQuizById, deleteQuiz, getQuizCountByUser } from "./quiz.server";
 
 async function makeFolder(db: Awaited<ReturnType<typeof createTestDb>>, email = "owner@example.com") {
   const user = await createUser({ email, passwordHash: "hash" }, db);
@@ -120,5 +120,19 @@ describe("quiz entity", () => {
     const deleted = await deleteQuiz(quiz.id, db);
     expect(deleted).toBe(true);
     expect(await getQuizById(quiz.id, userId, db)).toBeNull();
+  });
+
+  it("counts quizzes scoped to the requesting user", async () => {
+    const db = await createTestDb();
+    const { userId, folderId } = await makeFolder(db);
+    const other = await createUser({ email: "other@example.com", passwordHash: "hash" }, db);
+    const otherFolder = await createFolder({ userId: other.id, name: "Other" }, db);
+
+    await createQuiz({ ...baseInput, folderId, userId, name: "Quiz A", questionTypes: [...baseInput.questionTypes] }, db);
+    await createQuiz({ ...baseInput, folderId, userId, name: "Quiz B", questionTypes: [...baseInput.questionTypes] }, db);
+    await createQuiz({ ...baseInput, folderId: otherFolder.id, userId: other.id, questionTypes: [...baseInput.questionTypes] }, db);
+
+    expect(await getQuizCountByUser(userId, db)).toBe(2);
+    expect(await getQuizCountByUser(other.id, db)).toBe(1);
   });
 });
