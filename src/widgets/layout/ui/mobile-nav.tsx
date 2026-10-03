@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { List } from "@phosphor-icons/react";
 import { APP_NAME } from "@/shared/config/app-config";
 import { Button } from "@/shared/ui/button";
@@ -19,9 +20,7 @@ export function MobileNav() {
       </SheetTrigger>
       <SheetContent side="left" className="w-64 bg-sidebar">
         <div className="flex items-center gap-2 p-4 pb-0">
-          <span className="flex size-8 items-center justify-center rounded-lg bg-brand-amber text-sm font-bold text-white">
-            {APP_NAME[0]}
-          </span>
+          <Image src="/pracen-mark.png" alt="" width={32} height={32} className="size-8 rounded-lg" />
           <span className="font-heading text-base font-semibold text-foreground">{APP_NAME}</span>
         </div>
         <NavLinks className="p-4" onNavigate={() => setOpen(false)} />

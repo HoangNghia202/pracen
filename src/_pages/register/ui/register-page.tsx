@@ -1,4 +1,4 @@
-import { Sparkle } from "@phosphor-icons/react/dist/ssr";
+import Image from "next/image";
 import { RegisterForm } from "@/features/auth-by-credentials";
 import { GoogleSignInButton } from "@/features/auth-by-google";
 
@@ -6,9 +6,7 @@ export function RegisterPage() {
   return (
     <div className="mx-auto flex w-full max-w-sm flex-col gap-6">
       <div className="flex flex-col items-center gap-3 text-center">
-        <span className="flex size-12 items-center justify-center rounded-2xl bg-brand-amber text-white shadow-brand">
-          <Sparkle weight="fill" className="size-6" />
-        </span>
+        <Image src="/pracen-mark.png" alt="Pracen" width={56} height={56} className="size-14 rounded-2xl shadow-brand" priority />
         <div className="flex flex-col gap-1">
           <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">Create your account</h1>
           <p className="text-sm text-muted-foreground">Start building your vocabulary today.</p>

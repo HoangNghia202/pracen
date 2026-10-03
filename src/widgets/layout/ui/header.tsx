@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { CaretDown } from "@phosphor-icons/react/dist/ssr";
 import { APP_NAME } from "@/shared/config/app-config";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
@@ -32,9 +33,7 @@ export function Header({ user }: HeaderProps) {
       <div className="flex items-center gap-3">
         <MobileNav />
         <div className="flex items-center gap-2">
-          <span className="flex size-8 items-center justify-center rounded-lg bg-brand-amber text-sm font-bold text-white">
-            {APP_NAME[0]}
-          </span>
+          <Image src="/pracen-mark.png" alt="" width={32} height={32} className="size-8 rounded-lg" priority />
           <span className="font-heading text-base font-semibold text-foreground">{APP_NAME}</span>
         </div>
       </div>

@@ -10,5 +10,11 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/((?!api/auth|_next/static|_next/image|favicon.ico).*)"],
+  // Static assets under /public (logos, icons, etc.) must stay reachable
+  // even when the visitor isn't authenticated - the login/register pages
+  // render the app logo before any session exists, so redirecting an
+  // unauthenticated image request to /login made next/image's optimizer
+  // fetch an HTML redirect instead of the file and fail with "isn't a
+  // valid image".
+  matcher: ["/((?!api/auth|_next/static|_next/image|.*\\.(?:ico|png|jpg|jpeg|gif|svg|webp|avif)$).*)"],
 };
