@@ -1,9 +1,11 @@
 import { renderHook, act } from "@testing-library/react";
 import { vi } from "vitest";
 import { useQuizLeaveGuard } from "./use-quiz-leave-guard";
+import { confirm } from "@/shared/ui/confirm-dialog";
 
 const push = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
+vi.mock("@/shared/ui/confirm-dialog", () => ({ confirm: vi.fn() }));
 
 function clickLink(href: string) {
   const link = document.createElement("a");
@@ -17,19 +19,21 @@ function clickLink(href: string) {
 
 afterEach(() => {
   push.mockClear();
+  vi.mocked(confirm).mockClear();
 });
 
 it("does nothing when inactive: a link click is not intercepted", () => {
-  const { result } = renderHook(() => useQuizLeaveGuard(false));
+  renderHook(() => useQuizLeaveGuard(false));
 
   const event = clickLink("/library");
 
   expect(event.defaultPrevented).toBe(false);
-  expect(result.current.pendingHref).toBeNull();
+  expect(confirm).not.toHaveBeenCalled();
 });
 
-it("intercepts a click on a link to a different route while active", () => {
-  const { result } = renderHook(() => useQuizLeaveGuard(true));
+it("asks for confirmation when clicking a link to a different route while active", () => {
+  vi.mocked(confirm).mockResolvedValue(true);
+  renderHook(() => useQuizLeaveGuard(true));
 
   let event: MouseEvent;
   act(() => {
@@ -37,11 +41,13 @@ it("intercepts a click on a link to a different route while active", () => {
   });
 
   expect(event!.defaultPrevented).toBe(true);
-  expect(result.current.pendingHref).toBe("/library");
+  expect(confirm).toHaveBeenCalledWith(
+    expect.objectContaining({ title: "Leave this quiz?", confirmText: "Leave", cancelText: "Stay" })
+  );
 });
 
 it("ignores a click on a link to the current path", () => {
-  const { result } = renderHook(() => useQuizLeaveGuard(true));
+  renderHook(() => useQuizLeaveGuard(true));
 
   let event: MouseEvent;
   act(() => {
@@ -49,35 +55,31 @@ it("ignores a click on a link to the current path", () => {
   });
 
   expect(event!.defaultPrevented).toBe(false);
-  expect(result.current.pendingHref).toBeNull();
+  expect(confirm).not.toHaveBeenCalled();
 });
 
-it("navigates to the pending href when confirmLeave is called", () => {
-  const { result } = renderHook(() => useQuizLeaveGuard(true));
+it("navigates to the href once the user confirms leaving", async () => {
+  vi.mocked(confirm).mockResolvedValue(true);
+  renderHook(() => useQuizLeaveGuard(true));
 
-  act(() => {
+  await act(async () => {
     clickLink("/quiz");
-  });
-  act(() => {
-    result.current.confirmLeave();
+    await Promise.resolve();
   });
 
   expect(push).toHaveBeenCalledWith("/quiz");
-  expect(result.current.pendingHref).toBeNull();
 });
 
-it("clears the pending href without navigating when cancelLeave is called", () => {
-  const { result } = renderHook(() => useQuizLeaveGuard(true));
+it("does not navigate when the user cancels", async () => {
+  vi.mocked(confirm).mockResolvedValue(false);
+  renderHook(() => useQuizLeaveGuard(true));
 
-  act(() => {
+  await act(async () => {
     clickLink("/quiz");
-  });
-  act(() => {
-    result.current.cancelLeave();
+    await Promise.resolve();
   });
 
   expect(push).not.toHaveBeenCalled();
-  expect(result.current.pendingHref).toBeNull();
 });
 
 it("marks the beforeunload event as cancelable while active", () => {

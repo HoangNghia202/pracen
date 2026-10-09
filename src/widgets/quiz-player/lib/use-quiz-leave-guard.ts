@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { confirm } from "@/shared/ui/confirm-dialog";
 
 function isInternalNavigationClick(event: MouseEvent): string | null {
   if (event.defaultPrevented || event.button !== 0) return null;
@@ -24,7 +25,6 @@ function isInternalNavigationClick(event: MouseEvent): string | null {
 
 export function useQuizLeaveGuard(active: boolean) {
   const router = useRouter();
-  const [pendingHref, setPendingHref] = useState<string | null>(null);
 
   useEffect(() => {
     if (!active) return;
@@ -34,7 +34,14 @@ export function useQuizLeaveGuard(active: boolean) {
       if (!href) return;
       event.preventDefault();
       event.stopPropagation();
-      setPendingHref(href);
+      confirm({
+        title: "Leave this quiz?",
+        description: "You haven't finished this question yet. Leaving now will lose your progress on it.",
+        confirmText: "Leave",
+        cancelText: "Stay",
+      }).then((leave) => {
+        if (leave) router.push(href);
+      });
     }
 
     function handleBeforeUnload(event: BeforeUnloadEvent) {
@@ -47,16 +54,5 @@ export function useQuizLeaveGuard(active: boolean) {
       document.removeEventListener("click", handleClick, true);
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [active]);
-
-  function confirmLeave() {
-    if (pendingHref) router.push(pendingHref);
-    setPendingHref(null);
-  }
-
-  function cancelLeave() {
-    setPendingHref(null);
-  }
-
-  return { pendingHref, confirmLeave, cancelLeave };
+  }, [active, router]);
 }

@@ -4,8 +4,10 @@ import { vi } from "vitest";
 import Link from "next/link";
 import { QuizPlayer } from "./quiz-player";
 import { submitAnswerAction } from "@/features/submit-quiz-answer";
+import { confirm } from "@/shared/ui/confirm-dialog";
 
 vi.mock("@/features/submit-quiz-answer", () => ({ submitAnswerAction: vi.fn() }));
+vi.mock("@/shared/ui/confirm-dialog", () => ({ confirm: vi.fn() }));
 const refresh = vi.fn();
 const push = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh, push }) }));
@@ -62,6 +64,7 @@ it("refreshes the page for the next question, or navigates to results when compl
 });
 
 it("confirms before leaving the page while the question is unanswered", async () => {
+  vi.mocked(confirm).mockResolvedValue(true);
   const user = userEvent.setup();
   render(
     <div>
@@ -72,10 +75,7 @@ it("confirms before leaving the page while the question is unanswered", async ()
 
   await user.click(screen.getByRole("link", { name: "Library" }));
 
-  expect(screen.getByRole("alertdialog")).toBeInTheDocument();
-  await user.click(screen.getByRole("button", { name: "Leave" }));
-
-  expect(push).toHaveBeenCalledWith("/library");
+  await waitFor(() => expect(push).toHaveBeenCalledWith("/library"));
 });
 
 it("does not confirm before leaving once the question is completed", async () => {
@@ -94,5 +94,5 @@ it("does not confirm before leaving once the question is completed", async () =>
 
   await user.click(screen.getByRole("link", { name: "Library" }));
 
-  expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+  expect(confirm).not.toHaveBeenCalled();
 });
