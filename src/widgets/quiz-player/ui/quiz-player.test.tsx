@@ -3,10 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import Link from "next/link";
 import { QuizPlayer } from "./quiz-player";
-import { submitAnswerAction } from "@/features/submit-quiz-answer";
+import { submitAnswerAction } from "@/features/quiz-attempt/submit-quiz-answer";
 import { confirm } from "@/shared/ui/confirm-dialog";
 
-vi.mock("@/features/submit-quiz-answer", () => ({ submitAnswerAction: vi.fn() }));
+vi.mock("@/features/quiz-attempt/submit-quiz-answer", () => ({ submitAnswerAction: vi.fn() }));
 vi.mock("@/shared/ui/confirm-dialog", () => ({ confirm: vi.fn() }));
 const refresh = vi.fn();
 const push = vi.fn();

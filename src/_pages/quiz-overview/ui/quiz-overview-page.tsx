@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { Badge } from "@/shared/ui/badge";
-import { StartQuizButton } from "@/features/start-quiz-attempt";
+import { StartQuizButton } from "@/features/quiz-attempt/start-quiz-attempt";
 import { AttemptHistory } from "@/widgets/attempt-history";
 import type { Quiz } from "@/entities/quiz";
 import type { QuizAttempt } from "@/entities/quiz-attempt";

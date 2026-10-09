@@ -1,6 +1,6 @@
 import { ListChecks } from "@phosphor-icons/react/dist/ssr";
-import { CreateQuizDialog } from "@/features/create-quiz";
-import { QuizListToolbar } from "@/features/filter-quiz";
+import { CreateQuizDialog } from "@/features/quiz/create-quiz";
+import { QuizListToolbar } from "@/features/quiz/filter-quiz";
 import { QuizGrid } from "@/widgets/quiz-grid";
 import type { QuizWithMeta } from "@/entities/quiz";
 

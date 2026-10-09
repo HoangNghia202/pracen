@@ -6,11 +6,11 @@ import { createFolder } from "@/entities/folder";
 import { createQuiz } from "@/entities/quiz";
 import { createQuizQuestions } from "@/entities/quiz-question";
 import { createAttempt, getAttemptById, listAnswersByAttempt } from "@/entities/quiz-attempt";
-import { gradeSentenceAnswer } from "@/features/grade-sentence-answer";
+import { gradeSentenceAnswer } from "@/features/quiz-attempt/grade-sentence-answer";
 import { submitAnswerAction } from "./submit-quiz-answer.server";
 
 vi.mock("@/_app/api-routes/auth", () => ({ auth: vi.fn() }));
-vi.mock("@/features/grade-sentence-answer", () => ({ gradeSentenceAnswer: vi.fn() }));
+vi.mock("@/features/quiz-attempt/grade-sentence-answer", () => ({ gradeSentenceAnswer: vi.fn() }));
 
 async function setup(db: Awaited<ReturnType<typeof createTestDb>>) {
   const user = await createUser({ email: "owner@example.com", passwordHash: "hash" }, db);

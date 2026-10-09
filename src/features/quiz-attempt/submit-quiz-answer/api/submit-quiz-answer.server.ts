@@ -3,7 +3,7 @@
 import { submitAnswerSchema } from "../model/schema";
 import { getAttemptById, recordAnswer } from "@/entities/quiz-attempt";
 import { getQuestionById } from "@/entities/quiz-question";
-import { gradeSentenceAnswer } from "@/features/grade-sentence-answer";
+import { gradeSentenceAnswer } from "@/features/quiz-attempt/grade-sentence-answer";
 import { auth } from "@/_app/api-routes/auth";
 import { db as defaultDb } from "@/shared/api";
 

@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { RegisterForm } from "@/features/auth-by-credentials";
-import { GoogleSignInButton } from "@/features/auth-by-google";
+import { RegisterForm } from "@/features/user/auth-by-credentials";
+import { GoogleSignInButton } from "@/features/user/auth-by-google";
 
 export function RegisterPage() {
   return (

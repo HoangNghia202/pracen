@@ -9,7 +9,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/shared/ui/button";
 import { formatDate } from "@/shared/lib/format-date";
-import { CreateFolderDialog } from "@/features/create-folder";
+import { CreateFolderDialog } from "@/features/folder/create-folder";
 import type { AttemptWithQuizName } from "@/entities/quiz-attempt";
 
 interface HomePageProps {

@@ -5,7 +5,7 @@ import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db, schema } from "@/shared/api";
 import { getUserByEmail } from "@/entities/user";
 import { verifyPassword } from "@/shared/lib/password";
-import { loginSchema } from "@/features/auth-by-credentials";
+import { loginSchema } from "@/features/user/auth-by-credentials";
 import type { User } from "@/entities/user";
 
 type Db = Parameters<typeof getUserByEmail>[1];

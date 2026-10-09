@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
-import { LogoutMenuItem } from "@/features/logout";
+import { LogoutMenuItem } from "@/features/user/logout";
 import { MobileNav } from "./mobile-nav";
 
 interface HeaderProps {

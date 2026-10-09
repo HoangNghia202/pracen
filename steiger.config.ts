@@ -37,7 +37,7 @@ export default defineConfig([
     //    both `forbidden-imports` (lower layer reaching into a higher one) and
     //    `no-public-api-sidestep` (reaching past a slice's public API).
     // 2. `submit-quiz-answer.server.ts` imports `gradeSentenceAnswer` from the
-    //    sibling `@/features/grade-sentence-answer` slice — a same-layer
+    //    sibling `@/features/quiz-attempt/grade-sentence-answer` slice — a same-layer
     //    (`features` -> `features`) composition that also trips
     //    `forbidden-imports`.
     // Scope both rules off for `*.server.ts`/`*.server.test.ts` files rather

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
-import { submitAnswerAction } from "@/features/submit-quiz-answer";
+import { submitAnswerAction } from "@/features/quiz-attempt/submit-quiz-answer";
 import type { QuestionChoice, QuestionType } from "@/entities/quiz-attempt";
 import { useQuizLeaveGuard } from "../lib/use-quiz-leave-guard";
 

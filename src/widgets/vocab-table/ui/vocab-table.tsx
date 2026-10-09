@@ -1,8 +1,8 @@
 import { Notebook } from "@phosphor-icons/react/dist/ssr";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
-import { PlayWordAudioButton } from "@/features/play-word-audio";
-import { EditVocabItemDialog } from "@/features/edit-vocab-item";
-import { DeleteVocabItemButton } from "@/features/delete-vocab-item";
+import { PlayWordAudioButton } from "@/features/vocab-item/play-word-audio";
+import { EditVocabItemDialog } from "@/features/vocab-item/edit-vocab-item";
+import { DeleteVocabItemButton } from "@/features/vocab-item/delete-vocab-item";
 import type { VocabItem } from "@/entities/vocab-item";
 
 export function VocabTable({ items }: { items: VocabItem[] }) {

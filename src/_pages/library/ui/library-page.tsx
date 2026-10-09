@@ -1,6 +1,6 @@
 import { Books } from "@phosphor-icons/react/dist/ssr";
-import { CreateFolderDialog } from "@/features/create-folder";
-import { FolderListToolbar } from "@/features/search-folders";
+import { CreateFolderDialog } from "@/features/folder/create-folder";
+import { FolderListToolbar } from "@/features/folder/search-folders";
 import { FolderGrid } from "@/widgets/folder-grid";
 import type { FolderWithStats } from "@/entities/folder";
 

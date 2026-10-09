@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { LoginForm } from "@/features/auth-by-credentials";
-import { GoogleSignInButton } from "@/features/auth-by-google";
+import { LoginForm } from "@/features/user/auth-by-credentials";
+import { GoogleSignInButton } from "@/features/user/auth-by-google";
 
 const ERROR_MESSAGES: Record<string, string> = {
   OAuthAccountNotLinked:
