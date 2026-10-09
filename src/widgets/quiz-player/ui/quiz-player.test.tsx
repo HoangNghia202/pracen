@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
+import Link from "next/link";
 import { QuizPlayer } from "./quiz-player";
 import { submitAnswerAction } from "@/features/submit-quiz-answer";
 
@@ -58,4 +59,40 @@ it("refreshes the page for the next question, or navigates to results when compl
   await user.click(screen.getByRole("button", { name: "See results" }));
 
   expect(push).toHaveBeenCalledWith("/quiz/q1/attempt/a1");
+});
+
+it("confirms before leaving the page while the question is unanswered", async () => {
+  const user = userEvent.setup();
+  render(
+    <div>
+      <Link href="/library">Library</Link>
+      <QuizPlayer attemptId="a1" quizId="q1" questionIndex={0} totalQuestions={2} questionType="meaning" word="Dog" meaning="A dog" choices={[{ id: "v1", word: "Dog", meaning: "A dog" }]} />
+    </div>
+  );
+
+  await user.click(screen.getByRole("link", { name: "Library" }));
+
+  expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+  await user.click(screen.getByRole("button", { name: "Leave" }));
+
+  expect(push).toHaveBeenCalledWith("/library");
+});
+
+it("does not confirm before leaving once the question is completed", async () => {
+  vi.mocked(submitAnswerAction).mockResolvedValue({ ok: true, isCorrect: true, aiFeedback: null, completed: true, score: 2 });
+  const user = userEvent.setup();
+  render(
+    <div>
+      <Link href="/library">Library</Link>
+      <QuizPlayer attemptId="a1" quizId="q1" questionIndex={1} totalQuestions={2} questionType="meaning" word="Dog" meaning="A dog" choices={[{ id: "v1", word: "Dog", meaning: "A dog" }]} />
+    </div>
+  );
+
+  await user.click(screen.getByRole("button", { name: "A dog" }));
+  await user.click(screen.getByRole("button", { name: "Submit" }));
+  await waitFor(() => expect(screen.getByRole("button", { name: "See results" })).toBeInTheDocument());
+
+  await user.click(screen.getByRole("link", { name: "Library" }));
+
+  expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
 });

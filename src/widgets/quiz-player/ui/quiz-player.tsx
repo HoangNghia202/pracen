@@ -4,8 +4,19 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/shared/ui/alert-dialog";
 import { submitAnswerAction } from "@/features/submit-quiz-answer";
 import type { QuestionChoice, QuestionType } from "@/entities/quiz-attempt";
+import { useQuizLeaveGuard } from "../lib/use-quiz-leave-guard";
 
 interface QuizPlayerProps {
   attemptId: string;
@@ -35,6 +46,7 @@ export function QuizPlayer({
   const [completed, setCompleted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { pendingHref, confirmLeave, cancelLeave } = useQuizLeaveGuard(!completed);
 
   const answer = questionType === "sentence" ? sentence : (selectedChoiceId ?? "");
 
@@ -138,6 +150,21 @@ export function QuizPlayer({
           {isSubmitting ? "Checking..." : "Submit"}
         </Button>
       )}
+
+      <AlertDialog open={pendingHref !== null} onOpenChange={(open) => !open && cancelLeave()}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Leave this quiz?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You haven&apos;t finished this question yet. Leaving now will lose your progress on it.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Stay</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmLeave}>Leave</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
