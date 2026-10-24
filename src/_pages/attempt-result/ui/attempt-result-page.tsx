@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, Trophy } from "@phosphor-icons/react/dist/ssr";
 import { Badge } from "@/shared/ui/badge";
 import type { AttemptAnswer } from "@/entities/quiz-attempt";
+import {BotIcon} from "lucide-react";
 
 // `userAnswer`/the question's own `vocabItemId` are raw ids for `meaning`/`word`
 // questions — the route resolves them to human-readable labels (the choice's
@@ -55,16 +56,21 @@ export function AttemptResultPage({ quizId, quizName, score, totalQuestions, ans
           <div key={answer.id} className="flex flex-col gap-1.5 rounded-2xl border border-border bg-card p-4 shadow-brand-sm">
             <div className="flex items-center justify-between">
               <p className="font-medium text-foreground">{answer.word}</p>
-              <Badge variant={answer.isCorrect ? "secondary" : "destructive"}>
+              <Badge className={answer.isCorrect ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}>
                 {answer.isCorrect ? "Correct" : "Incorrect"}
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground">Meaning: {answer.meaning}</p>
             <p className="text-sm text-foreground">Your answer: {answer.userAnswerLabel}</p>
             {answer.correctAnswerLabel !== null && (
-              <p className="text-sm text-foreground">Correct answer: {answer.correctAnswerLabel}</p>
+              <p className="text-sm text-yellow-600">Correct answer: {answer.correctAnswerLabel}</p>
             )}
-            {answer.aiFeedback && <p className="text-sm text-muted-foreground">{answer.aiFeedback}</p>}
+              {answer.aiFeedback && (
+                  <div className="flex items-start gap-2">
+                  <BotIcon className="size-4 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">{answer.aiFeedback}</p>
+                  </div>
+              )}
           </div>
         ))}
       </div>
