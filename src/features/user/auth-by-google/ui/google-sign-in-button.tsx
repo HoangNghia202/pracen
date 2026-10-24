@@ -10,7 +10,7 @@ export function GoogleSignInButton() {
       type="button"
       variant="outline"
       className="w-full"
-      onClick={() => signIn("google", { callbackUrl: "/" })}
+      onClick={() => signIn("google", { redirectTo: "/" })}
     >
       <GoogleLogo weight="bold" className="size-4" />
       Continue with Google

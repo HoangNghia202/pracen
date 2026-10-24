@@ -5,7 +5,7 @@ import { Button } from "@/shared/ui/button";
 
 export function LogoutButton() {
   return (
-    <Button variant="ghost" onClick={() => signOut({ callbackUrl: "/login" })}>
+    <Button variant="ghost" onClick={() => signOut({ redirectTo: "/login" })}>
       Log out
     </Button>
   );
