@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "6f62ff47-48f4-4dcb-a4f1-0db0814ae0d8",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/Users/hoangnghia/Documents/code/react/pracen/.archify/workflow-pracen-business-flow-20261024-165433/candidate.json",
+  "output": "/Users/hoangnghia/Documents/code/react/pracen/.archify/workflow-pracen-business-flow-20261024-165433/pracen-business-flow.html",
+  "specification": {
+    "sha256": "79d4337ba67fe2c2ecc635e0f1bae89acad189113efc441faad3b5ecb4f0338a",
+    "bytes": 11406
+  },
+  "artifact": {
+    "sha256": "dda850903353028f3bcf33cea6097dbbc6208895c80c119fece1036f303c840f",
+    "bytes": 856922
+  }
+}

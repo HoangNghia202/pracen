@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "workflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/hoangnghia/Documents/code/react/pracen/.archify/workflow-pracen-business-flow-20261024-165433/candidate.json",
+    "sha256": "79d4337ba67fe2c2ecc635e0f1bae89acad189113efc441faad3b5ecb4f0338a",
+    "bytes": 11406
+  },
+  "artifact": {
+    "path": "/Users/hoangnghia/Documents/code/react/pracen/.archify/workflow-pracen-business-flow-20261024-165433/pracen-business-flow.html",
+    "sha256": "dda850903353028f3bcf33cea6097dbbc6208895c80c119fece1036f303c840f",
+    "bytes": 856922
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/hoangnghia/Documents/code/react/pracen/.archify/workflow-pracen-business-flow-20261024-165433/pracen-business-flow.finalize.json",
+    "summaryReceipt": "/Users/hoangnghia/Documents/code/react/pracen/.archify/workflow-pracen-business-flow-20261024-165433/pracen-business-flow.finalize-summary.json",
+    "browserCheckReceipt": "/Users/hoangnghia/Documents/code/react/pracen/.archify/workflow-pracen-business-flow-20261024-165433/pracen-business-flow.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-24T09:57:47.194Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 8764,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

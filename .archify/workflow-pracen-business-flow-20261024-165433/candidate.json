@@ -1,0 +1,140 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Pracen Vocab & Quiz — Business Process Flow",
+    "quality_profile": "showcase",
+    "output": ".archify/workflow-pracen-business-flow-20261024-165433/pracen-business-flow.html",
+    "repository": {
+      "url": "git@github.com:HoangNghia202/pracen.git",
+      "provider": "github",
+      "link_mode": "local-only",
+      "revision": "e2b99a247ba8629573cbcbbcb291cff55c3d6272"
+    }
+  },
+  "lanes": [
+    { "id": "ui", "label": "Learner / UI" },
+    { "id": "app", "label": "Server Actions" },
+    { "id": "ai", "label": "AI Grading" },
+    { "id": "data", "label": "Postgres (Drizzle ORM)" },
+    { "id": "guard", "label": "Access & Resilience Guards", "variant": "exception" }
+  ],
+  "phases": [
+    { "id": "signin", "label": "Sign in", "fromCol": 0, "toCol": 0 },
+    { "id": "library", "label": "Build library", "fromCol": 1, "toCol": 1 },
+    { "id": "importp", "label": "Import vocabulary", "fromCol": 2, "toCol": 2 },
+    { "id": "quizcreate", "label": "Create quiz", "fromCol": 3, "toCol": 3, "variant": "emphasis" },
+    { "id": "attemptp", "label": "Take quiz", "fromCol": 4, "toCol": 4, "variant": "emphasis" },
+    { "id": "review", "label": "Review result", "fromCol": 5, "toCol": 5 }
+  ],
+  "groups": [
+    { "id": "store_band", "label": "Postgres (Drizzle ORM)", "lane": "data", "fromCol": 0, "toCol": 4, "variant": "dashed" }
+  ],
+  "mainPath": [
+    "loginUi", "authGate", "libraryUi", "folderAction", "folderDetailUi", "importAction",
+    "createQuizUi", "createQuizAction", "attemptUi", "attemptAction", "resultLoader", "resultUi"
+  ],
+  "nodes": [
+    { "id": "loginUi", "lane": "ui", "col": 0, "type": "frontend", "label": "Login / Register UI", "sublabel": "credentials or Google",
+      "sources": [
+        { "path": "src/features/user/auth-by-credentials/ui/login-form.tsx", "line": 19, "end_line": 24, "label": "signIn(credentials)" },
+        { "path": "src/features/user/auth-by-google/ui/google-sign-in-button.tsx", "line": 13, "label": "signIn(google)" }
+      ] },
+    { "id": "libraryUi", "lane": "ui", "col": 1, "type": "frontend", "label": "Library UI", "sublabel": "folders grid + create",
+      "sources": [ { "path": "src/_pages/library/ui/library-page.tsx", "line": 12, "end_line": 27 } ] },
+    { "id": "folderDetailUi", "lane": "ui", "col": 2, "type": "frontend", "label": "Folder Detail UI", "sublabel": "add or upload words",
+      "sources": [ { "path": "src/_pages/folder-detail/ui/folder-detail-page.tsx", "line": 17, "end_line": 41 } ] },
+    { "id": "createQuizUi", "lane": "ui", "col": 3, "type": "frontend", "label": "Create Quiz UI", "sublabel": "pick words + question types",
+      "sources": [ { "path": "src/features/quiz/create-quiz/ui/create-quiz-dialog.tsx", "line": 116, "label": "createQuizAction(...)" } ] },
+    { "id": "attemptUi", "lane": "ui", "col": 4, "type": "frontend", "label": "Quiz Attempt UI", "sublabel": "one question at a time",
+      "sources": [ { "path": "src/_pages/quiz-attempt/index.tsx", "line": 1, "end_line": 36 } ] },
+    { "id": "resultUi", "lane": "ui", "col": 5, "type": "frontend", "label": "Result UI", "sublabel": "score + answer review",
+      "sources": [ { "path": "src/_pages/attempt-result/index.tsx", "line": 51, "end_line": 59 } ] },
+
+    { "id": "authGate", "lane": "app", "col": 0, "type": "security", "label": "Auth.js Session Gate", "sublabel": "Credentials or Google → JWT", "tag": "enforced in middleware",
+      "sources": [
+        { "path": "src/_app/api-routes/auth.ts", "line": 43, "end_line": 57 },
+        { "path": "middleware.ts", "line": 5, "end_line": 9 }
+      ] },
+    { "id": "folderAction", "lane": "app", "col": 1, "type": "backend", "label": "createFolderAction", "sublabel": "scoped to session.user.id",
+      "sources": [ { "path": "src/features/folder/create-folder/api/create-folder.server.ts", "line": 13, "end_line": 33 } ] },
+    { "id": "importAction", "lane": "app", "col": 2, "type": "backend", "label": "importVocabAction", "sublabel": "validate rows, bulk insert",
+      "sources": [ { "path": "src/features/vocab-item/upload-vocab-file/api/import-vocab.server.ts", "line": 15, "end_line": 42 } ] },
+    { "id": "createQuizAction", "lane": "app", "col": 3, "type": "backend", "label": "createQuizAction", "sublabel": "build questions from selected words", "tag": "best-effort rollback",
+      "sources": [ { "path": "src/features/quiz/create-quiz/api/create-quiz.server.ts", "line": 16, "end_line": 83 } ] },
+    { "id": "attemptAction", "lane": "app", "col": 4, "type": "backend", "label": "Start / Submit attempt", "sublabel": "resumes in-progress attempt",
+      "sources": [
+        { "path": "src/features/quiz-attempt/start-quiz-attempt/api/start-quiz-attempt.server.ts", "line": 13, "end_line": 39 },
+        { "path": "src/features/quiz-attempt/submit-quiz-answer/api/submit-quiz-answer.server.ts", "line": 16, "end_line": 83 }
+      ] },
+    { "id": "resultLoader", "lane": "app", "col": 5, "type": "backend", "label": "Attempt Result Loader", "sublabel": "resolve choice ids to labels",
+      "sources": [ { "path": "src/_pages/attempt-result/index.tsx", "line": 15, "end_line": 49 } ] },
+
+    { "id": "redirectGate", "lane": "guard", "col": 0, "type": "security", "label": "Redirect Gate", "sublabel": "no session → /login",
+      "sources": [
+        { "path": "middleware.ts", "line": 5, "end_line": 9 },
+        { "path": "src/_app/middleware-logic.ts", "line": 3, "end_line": 9 }
+      ] },
+    { "id": "rollbackQuiz", "lane": "guard", "col": 3, "type": "security", "label": "Compensating Rollback", "sublabel": "question build failed → delete quiz",
+      "sources": [ { "path": "src/features/quiz/create-quiz/api/create-quiz.server.ts", "line": 66, "end_line": 77 } ] },
+
+    { "id": "aiGrading", "lane": "ai", "col": 4, "type": "cloud", "label": "AI Gateway Grading", "sublabel": "gemini-2.5-flash · 15s timeout", "tag": "sentence questions only",
+      "sources": [ { "path": "src/features/quiz-attempt/grade-sentence-answer/api/grade-sentence-answer.server.ts", "line": 24, "end_line": 37 } ] },
+
+    { "id": "usersStore", "lane": "data", "col": 0, "type": "database", "label": "users / accounts / sessions", "sublabel": "DrizzleAdapter",
+      "sources": [ { "path": "src/_app/api-routes/auth.ts", "line": 36, "end_line": 44 } ] },
+    { "id": "foldersStore", "lane": "data", "col": 1, "type": "database", "label": "folders", "sublabel": "owned by userId",
+      "sources": [ { "path": "src/entities/folder/api/folder.server.ts", "line": 48, "end_line": 57 } ] },
+    { "id": "vocabStore", "lane": "data", "col": 2, "type": "database", "label": "vocab_items", "sublabel": "bulk insert",
+      "sources": [ { "path": "src/entities/vocab-item/api/vocab-item.server.ts", "line": 33, "end_line": 48 } ] },
+    { "id": "quizStore", "lane": "data", "col": 3, "type": "database", "label": "quizzes / quiz_questions", "sublabel": "created together",
+      "sources": [
+        { "path": "src/entities/quiz/api/quiz.server.ts", "line": 8, "end_line": 21 },
+        { "path": "src/entities/quiz-question/api/quiz-question.server.ts", "line": 8, "end_line": 17 }
+      ] },
+    { "id": "attemptStore", "lane": "data", "col": 4, "type": "database", "label": "attempts / answers", "sublabel": "score set on last answer",
+      "sources": [ { "path": "src/entities/quiz-attempt/api/quiz-attempt.server.ts", "line": 48, "end_line": 91 } ] }
+  ],
+  "edges": [
+    { "id": "login-auth", "from": "loginUi", "to": "authGate", "label": "sign in", "variant": "emphasis", "role": "main" },
+    { "id": "auth-users", "from": "authGate", "to": "usersStore", "label": "read / write session", "variant": "default", "role": "branch" },
+    { "id": "auth-redirect", "from": "authGate", "to": "redirectGate", "label": "no session", "variant": "security", "role": "error" },
+    { "id": "auth-library", "from": "authGate", "to": "libraryUi", "label": "session ok", "variant": "emphasis", "role": "main" },
+    { "id": "library-folderaction", "from": "libraryUi", "to": "folderAction", "label": "create folder", "variant": "default", "role": "main" },
+    { "id": "folderaction-store", "from": "folderAction", "to": "foldersStore", "label": "insert folder", "variant": "default", "role": "branch" },
+    { "id": "folderaction-detail", "from": "folderAction", "to": "folderDetailUi", "label": "open folder", "variant": "default", "role": "main" },
+    { "id": "detail-import", "from": "folderDetailUi", "to": "importAction", "label": "upload CSV / Excel", "variant": "default", "role": "main" },
+    { "id": "import-vocabstore", "from": "importAction", "to": "vocabStore", "label": "bulk insert rows", "variant": "default", "role": "branch" },
+    { "id": "import-createquizui", "from": "importAction", "to": "createQuizUi", "label": "words ready", "variant": "default", "role": "main" },
+    { "id": "createquizui-action", "from": "createQuizUi", "to": "createQuizAction", "label": "select words + types", "variant": "emphasis", "role": "main" },
+    { "id": "createquizaction-store", "from": "createQuizAction", "to": "quizStore", "label": "insert quiz + questions", "variant": "default", "role": "branch" },
+    { "id": "createquizaction-rollback", "from": "createQuizAction", "to": "rollbackQuiz", "label": "question build failed", "variant": "security", "role": "error" },
+    { "id": "rollback-store", "from": "rollbackQuiz", "to": "quizStore", "label": "delete quiz", "variant": "security", "role": "return" },
+    { "id": "createquizaction-attemptui", "from": "createQuizAction", "to": "attemptUi", "label": "quiz created", "variant": "default", "role": "main" },
+    { "id": "attemptui-action", "from": "attemptUi", "to": "attemptAction", "label": "start / answer", "variant": "emphasis", "role": "main" },
+    { "id": "action-aigrading", "from": "attemptAction", "to": "aiGrading", "label": "sentence question?", "variant": "dashed", "role": "branch" },
+    { "id": "aigrading-action", "from": "aiGrading", "to": "attemptAction", "label": "isCorrect + feedback", "variant": "dashed", "role": "return" },
+    { "id": "action-attemptstore", "from": "attemptAction", "to": "attemptStore", "label": "record answer", "variant": "default", "role": "branch" },
+    { "id": "action-resultloader", "from": "attemptAction", "to": "resultLoader", "label": "quiz completed", "variant": "emphasis", "role": "main" },
+    { "id": "resultloader-store", "from": "resultLoader", "to": "attemptStore", "label": "read score + answers", "variant": "default", "role": "branch" },
+    { "id": "resultloader-resultui", "from": "resultLoader", "to": "resultUi", "label": "render result", "variant": "default", "role": "main" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Access control",
+      "items": [
+        "Auth.js session required for every page and action; middleware redirects an unauthenticated request to /login",
+        "Every server action re-checks session.user.id ownership before touching a folder, quiz, or attempt"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Resilience",
+      "items": [
+        "Quiz creation deletes the just-created quiz if building its questions fails, instead of leaving an orphaned quiz behind",
+        "AI grading times out after 15s and falls back to a generic ungraded response instead of blocking the quiz"
+      ]
+    }
+  ]
+}
