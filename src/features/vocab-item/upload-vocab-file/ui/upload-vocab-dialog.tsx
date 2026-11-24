@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { UploadSimple } from "@phosphor-icons/react";
+import { DownloadSimple, UploadSimple } from "@phosphor-icons/react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
@@ -21,6 +21,7 @@ import {
   type ParseVocabFileResult,
 } from "../model/parse-vocab-file";
 import { MAX_IMPORT_ROWS } from "../model/schema";
+import { downloadVocabTemplate } from "../model/vocab-template";
 import { importVocabAction } from "../api/import-vocab.server";
 import { generateVocabExamplesAction } from "../api/generate-examples.server";
 
@@ -162,17 +163,27 @@ export function UploadVocabDialog({ folderId }: { folderId: string }) {
           Import file
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>Import from CSV or Excel</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col gap-4">
+        <div className="flex min-h-0 flex-col gap-4">
           <div className="flex flex-col gap-2">
             <Label htmlFor="file">File</Label>
             <Input id="file" type="file" accept=".csv,.xlsx,.xls" onChange={handleFileChange} />
             <p className="text-muted-foreground text-xs">
               Required: Word, Type, Meaning. Optional: Example, Part of speech. Max {MAX_IMPORT_ROWS} rows.
             </p>
+            <Button
+              type="button"
+              variant="link"
+              size="sm"
+              className="h-auto self-start p-0"
+              onClick={downloadVocabTemplate}
+            >
+              <DownloadSimple className="size-4" />
+              Download Excel template
+            </Button>
           </div>
 
           {isGenerating && (
@@ -180,7 +191,7 @@ export function UploadVocabDialog({ folderId }: { folderId: string }) {
           )}
 
           {preview && (
-            <div className="flex max-h-80 flex-col gap-3 overflow-y-auto">
+            <div className="flex max-h-[55vh] min-h-0 flex-col gap-3 overflow-y-auto">
               {preview.valid.length > 0 && (
                 <Table>
                   <TableHeader>
