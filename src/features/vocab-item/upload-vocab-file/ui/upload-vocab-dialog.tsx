@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { UploadSimple } from "@phosphor-icons/react";
 import { Button } from "@/shared/ui/button";
@@ -15,28 +15,98 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/shared/ui/dialog";
-import { parseVocabFile, type ParseVocabFileResult } from "../model/parse-vocab-file";
+import {
+  parseVocabFile,
+  type ParsedVocabRow,
+  type ParseVocabFileResult,
+} from "../model/parse-vocab-file";
+import { MAX_IMPORT_ROWS } from "../model/schema";
 import { importVocabAction } from "../api/import-vocab.server";
+import { generateVocabExamplesAction } from "../api/generate-examples.server";
+
+function pluralizeWords(count: number): string {
+  return `${count} word${count === 1 ? "" : "s"}`;
+}
 
 export function UploadVocabDialog({ folderId }: { folderId: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState<ParseVocabFileResult | null>(null);
+  const [examples, setExamples] = useState<string[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [missingCount, setMissingCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Ignores results from a generation request superseded by a newer file or a closed dialog.
+  const generationId = useRef(0);
+
+  const tooMany = (preview?.valid.length ?? 0) > MAX_IMPORT_ROWS;
+
+  function reset() {
+    generationId.current += 1;
+    setPreview(null);
+    setExamples([]);
+    setMissingCount(0);
+    setIsGenerating(false);
+  }
+
+  async function generateMissingExamples(rows: ParsedVocabRow[]) {
+    const pending = rows
+      .map((row, index) => ({ row, index }))
+      .filter(({ row }) => !row.example);
+    if (pending.length === 0) return;
+
+    const requestId = ++generationId.current;
+    setIsGenerating(true);
+
+    let generated: (string | null)[];
+    try {
+      const result = await generateVocabExamplesAction(
+        pending.map(({ row }) => ({ word: row.word, type: row.type, meaning: row.meaning }))
+      );
+      generated = result.ok ? result.examples : pending.map(() => null);
+    } catch {
+      generated = pending.map(() => null);
+    }
+
+    if (requestId !== generationId.current) return;
+    setExamples((prev) => {
+      const next = [...prev];
+      pending.forEach(({ index }, k) => {
+        const example = generated[k];
+        if (example) next[index] = example;
+      });
+      return next;
+    });
+    setMissingCount(generated.filter((example) => !example).length);
+    setIsGenerating(false);
+  }
 
   async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
     setError(null);
-    setPreview(null);
+    reset();
 
+    let parsed: ParseVocabFileResult;
     try {
-      const buffer = await file.arrayBuffer();
-      setPreview(parseVocabFile(buffer));
+      parsed = parseVocabFile(await file.arrayBuffer());
     } catch {
       setError("Could not read this file. Please make sure it's a valid CSV or Excel file.");
+      return;
     }
+
+    setPreview(parsed);
+    setExamples(parsed.valid.map((row) => row.example ?? ""));
+
+    if (parsed.valid.length > MAX_IMPORT_ROWS) {
+      setError(
+        `This file has ${parsed.valid.length} words. You can import at most ${MAX_IMPORT_ROWS} at a time.`
+      );
+      return;
+    }
+
+    await generateMissingExamples(parsed.valid);
   }
 
   async function handleConfirm() {
@@ -44,14 +114,25 @@ export function UploadVocabDialog({ folderId }: { folderId: string }) {
     setError(null);
     setIsSubmitting(true);
 
+    const rows: ParsedVocabRow[] = preview.valid.map((row, index) => {
+      const example = examples[index]?.trim();
+      return {
+        word: row.word,
+        type: row.type,
+        meaning: row.meaning,
+        ...(example ? { example } : {}),
+        ...(row.partOfSpeech ? { partOfSpeech: row.partOfSpeech } : {}),
+      };
+    });
+
     try {
-      const result = await importVocabAction(folderId, preview.valid);
+      const result = await importVocabAction(folderId, rows);
       if (!result.ok) {
         setError(result.error);
         return;
       }
       setOpen(false);
-      setPreview(null);
+      reset();
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");
@@ -65,7 +146,10 @@ export function UploadVocabDialog({ folderId }: { folderId: string }) {
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (!next) setPreview(null);
+        if (!next) {
+          reset();
+          setError(null);
+        }
       }}
     >
       <DialogTrigger asChild>
@@ -74,7 +158,7 @@ export function UploadVocabDialog({ folderId }: { folderId: string }) {
           Import file
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Import from CSV or Excel</DialogTitle>
         </DialogHeader>
@@ -83,25 +167,47 @@ export function UploadVocabDialog({ folderId }: { folderId: string }) {
             <Label htmlFor="file">File</Label>
             <Input id="file" type="file" accept=".csv,.xlsx,.xls" onChange={handleFileChange} />
             <p className="text-muted-foreground text-xs">
-              Columns: word, meaning, example (optional), part of speech (optional).
+              Required: Word, Type, Meaning. Optional: Example, Part of speech. Max {MAX_IMPORT_ROWS} rows.
             </p>
           </div>
 
+          {isGenerating && (
+            <p className="text-muted-foreground text-sm">Generating examples…</p>
+          )}
+
           {preview && (
-            <div className="flex max-h-72 flex-col gap-3 overflow-y-auto">
+            <div className="flex max-h-80 flex-col gap-3 overflow-y-auto">
               {preview.valid.length > 0 && (
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Word</TableHead>
+                      <TableHead>Type</TableHead>
                       <TableHead>Meaning</TableHead>
+                      <TableHead>Example</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {preview.valid.map((row, index) => (
                       <TableRow key={index}>
                         <TableCell>{row.word}</TableCell>
+                        <TableCell>{row.type}</TableCell>
                         <TableCell>{row.meaning}</TableCell>
+                        <TableCell className="min-w-64">
+                          <Input
+                            aria-label={`Example for ${row.word}`}
+                            value={examples[index] ?? ""}
+                            disabled={isGenerating}
+                            onChange={(event) => {
+                              const value = event.target.value;
+                              setExamples((prev) => {
+                                const next = [...prev];
+                                next[index] = value;
+                                return next;
+                              });
+                            }}
+                          />
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -122,14 +228,26 @@ export function UploadVocabDialog({ folderId }: { folderId: string }) {
             </div>
           )}
 
+          {missingCount > 0 && (
+            <p className="text-muted-foreground text-xs">
+              Couldn&apos;t generate examples for {pluralizeWords(missingCount)}. You can add them manually.
+            </p>
+          )}
+
           {error && <p className="text-destructive text-xs">{error}</p>}
         </div>
         <DialogFooter>
           <Button
             onClick={handleConfirm}
-            disabled={!preview || preview.valid.length === 0 || isSubmitting}
+            disabled={
+              !preview || preview.valid.length === 0 || tooMany || isGenerating || isSubmitting
+            }
           >
-            {isSubmitting ? "Importing..." : `Import ${preview?.valid.length ?? 0} words`}
+            {isSubmitting
+              ? "Importing..."
+              : isGenerating
+                ? "Generating examples..."
+                : `Import ${preview?.valid.length ?? 0} words`}
           </Button>
         </DialogFooter>
       </DialogContent>
