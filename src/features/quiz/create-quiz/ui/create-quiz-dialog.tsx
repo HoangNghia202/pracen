@@ -157,11 +157,11 @@ export function CreateQuizDialog({ folders, initialFolderId }: CreateQuizDialogP
           Create quiz
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Create quiz</DialogTitle>
         </DialogHeader>
-        <div className="flex max-h-[70vh] flex-col gap-4 overflow-y-auto">
+        <div className="flex max-h-[70vh] flex-col gap-4 overflow-y-auto px-1">
           {!initialFolderId && (
             <div className="flex flex-col gap-2">
               <Label htmlFor="folder">Folder</Label>
@@ -225,12 +225,12 @@ export function CreateQuizDialog({ folders, initialFolderId }: CreateQuizDialogP
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <Label htmlFor="shuffle-questions">Shuffle question order</Label>
+          <div className="flex items-center ">
+            <Label className={'w-50'} htmlFor="shuffle-questions">Shuffle question order</Label>
             <Switch id="shuffle-questions" checked={shuffleQuestions} onCheckedChange={setShuffleQuestions} />
           </div>
-          <div className="flex items-center justify-between">
-            <Label htmlFor="shuffle-answers">Shuffle answer choices</Label>
+          <div className="flex items-center">
+            <Label className={'w-50'} htmlFor="shuffle-answers">Shuffle answer choices</Label>
             <Switch id="shuffle-answers" checked={shuffleAnswers} onCheckedChange={setShuffleAnswers} />
           </div>
 
