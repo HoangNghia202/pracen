@@ -5,6 +5,7 @@ export interface VocabItem {
   meaning: string;
   example: string | null;
   partOfSpeech: string | null;
+  type: string | null;
   createdAt: Date;
 }
 
@@ -17,4 +18,5 @@ export interface NewVocabItem {
   // while `null` means "the caller wants this field empty".
   example?: string | null;
   partOfSpeech?: string | null;
+  type?: string | null;
 }

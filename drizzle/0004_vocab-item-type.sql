@@ -1,0 +1,1 @@
+ALTER TABLE "vocabItem" ADD COLUMN "type" text;

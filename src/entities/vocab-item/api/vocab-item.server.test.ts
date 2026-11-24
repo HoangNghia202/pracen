@@ -75,4 +75,32 @@ describe("vocab item entity", () => {
 
     expect(await getVocabItemById(item.id, db)).toBeNull();
   });
+
+  it("persists type on create, bulk create, and update", async () => {
+    const db = await createTestDb();
+    const folderId = await makeFolder(db);
+
+    const single = await createVocabItem({ folderId, word: "Run", meaning: "Move fast", type: "verb" }, db);
+    expect(single.type).toBe("verb");
+
+    const [bulk, untyped] = await createVocabItems(
+      folderId,
+      [
+        { word: "Dog", meaning: "A domesticated canine", type: "noun" },
+        { word: "Cat", meaning: "A domesticated feline" },
+      ],
+      db
+    );
+    expect(bulk.type).toBe("noun");
+    expect(untyped.type).toBeNull();
+
+    const updated = await updateVocabItem({ id: single.id, type: "phrasal verb" }, db);
+    expect(updated?.type).toBe("phrasal verb");
+
+    const unchanged = await updateVocabItem({ id: single.id, meaning: "Move quickly" }, db);
+    expect(unchanged?.type).toBe("phrasal verb");
+
+    const cleared = await updateVocabItem({ id: single.id, type: null }, db);
+    expect(cleared?.type).toBeNull();
+  });
 });

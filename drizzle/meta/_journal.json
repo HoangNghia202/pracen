@@ -29,6 +29,13 @@
       "when": 1790590162937,
       "tag": "0003_quiz-attempts",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795508339022,
+      "tag": "0004_vocab-item-type",
+      "breakpoints": true
     }
   ]
 }

@@ -25,6 +25,7 @@ export async function createVocabItem(
       meaning: input.meaning,
       example: input.example ?? null,
       partOfSpeech: input.partOfSpeech ?? null,
+      type: input.type ?? null,
     })
     .returning();
   return rows[0];
@@ -45,6 +46,7 @@ export async function createVocabItems(
         meaning: item.meaning,
         example: item.example ?? null,
         partOfSpeech: item.partOfSpeech ?? null,
+        type: item.type ?? null,
       }))
     )
     .returning();
@@ -66,6 +68,7 @@ export async function updateVocabItem(
       ...(input.meaning !== undefined ? { meaning: input.meaning } : {}),
       ...(input.example !== undefined ? { example: input.example } : {}),
       ...(input.partOfSpeech !== undefined ? { partOfSpeech: input.partOfSpeech } : {}),
+      ...(input.type !== undefined ? { type: input.type } : {}),
     })
     .where(eq(vocabItems.id, input.id))
     .returning();

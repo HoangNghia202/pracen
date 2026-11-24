@@ -71,6 +71,7 @@ export const vocabItems = pgTable("vocabItem", {
   meaning: text("meaning").notNull(),
   example: text("example"),
   partOfSpeech: text("partOfSpeech"),
+  type: text("type"),
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
 });
 

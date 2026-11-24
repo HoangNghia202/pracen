@@ -11,8 +11,8 @@ const push = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push, refresh: vi.fn() }) }));
 
 const words = [
-  { id: "v1", folderId: "f1", word: "Dog", meaning: "A domesticated canine", example: null, partOfSpeech: null, createdAt: new Date() },
-  { id: "v2", folderId: "f1", word: "Cat", meaning: "A domesticated feline", example: null, partOfSpeech: null, createdAt: new Date() },
+  { id: "v1", folderId: "f1", word: "Dog", meaning: "A domesticated canine", example: null, partOfSpeech: null, type: null, createdAt: new Date() },
+  { id: "v2", folderId: "f1", word: "Cat", meaning: "A domesticated feline", example: null, partOfSpeech: null, type: null, createdAt: new Date() },
 ];
 
 beforeEach(() => {
@@ -87,10 +87,10 @@ it("shows the empty-folder state and keeps submit disabled when the folder has n
 it("keeps the later-selected folder's words even when the earlier folder's fetch resolves last", async () => {
   const user = userEvent.setup();
   const folderAWords = [
-    { id: "a1", folderId: "fA", word: "Alpha", meaning: "First letter", example: null, partOfSpeech: null, createdAt: new Date() },
+    { id: "a1", folderId: "fA", word: "Alpha", meaning: "First letter", example: null, partOfSpeech: null, type: null, createdAt: new Date() },
   ];
   const folderBWords = [
-    { id: "b1", folderId: "fB", word: "Beta", meaning: "Second letter", example: null, partOfSpeech: null, createdAt: new Date() },
+    { id: "b1", folderId: "fB", word: "Beta", meaning: "Second letter", example: null, partOfSpeech: null, type: null, createdAt: new Date() },
   ];
 
   let resolveA!: (value: { ok: true; items: typeof folderAWords }) => void;

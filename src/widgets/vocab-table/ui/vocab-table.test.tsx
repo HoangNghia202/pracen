@@ -11,6 +11,7 @@ const item = {
   meaning: "A domesticated canine",
   example: null,
   partOfSpeech: null,
+  type: null,
   createdAt: new Date("2026-09-27T00:00:00Z"),
 };
 
