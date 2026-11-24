@@ -1,4 +1,11 @@
 import * as XLSX from "xlsx";
+import {
+  MAX_EXAMPLE_LENGTH,
+  MAX_MEANING_LENGTH,
+  MAX_PART_OF_SPEECH_LENGTH,
+  MAX_TYPE_LENGTH,
+  MAX_WORD_LENGTH,
+} from "./schema";
 
 export interface ParsedVocabRow {
   word: string;
@@ -56,6 +63,20 @@ export function parseVocabFile(buffer: ArrayBuffer): ParseVocabFileResult {
 
     const example = normalized.example;
     const partOfSpeech = normalized.partofspeech;
+
+    const tooLong = [
+      ["Word", word, MAX_WORD_LENGTH],
+      ["Type", type, MAX_TYPE_LENGTH],
+      ["Meaning", meaning, MAX_MEANING_LENGTH],
+      ["Example", example ?? "", MAX_EXAMPLE_LENGTH],
+      ["Part of speech", partOfSpeech ?? "", MAX_PART_OF_SPEECH_LENGTH],
+    ] as const;
+    const exceeded = tooLong.find(([, value, max]) => value.length > max);
+    if (exceeded) {
+      invalid.push({ row: sheetRow, reason: `${exceeded[0]} is too long (max ${exceeded[2]})` });
+      return;
+    }
+
     valid.push({
       word,
       type,

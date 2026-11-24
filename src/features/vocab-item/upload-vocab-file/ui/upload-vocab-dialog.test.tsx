@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import * as XLSX from "xlsx";
 import { vi } from "vitest";
@@ -132,5 +132,33 @@ describe("UploadVocabDialog", () => {
     ).toBeInTheDocument();
     expect(generateVocabExamplesAction).not.toHaveBeenCalled();
     await waitFor(() => expect(screen.getByRole("button", { name: "Import 101 words" })).toBeDisabled());
+  });
+
+  it("ignores a file whose read is superseded by a newer file", async () => {
+    vi.mocked(generateVocabExamplesAction).mockResolvedValue({ ok: true, examples: ["Cats purr."] });
+    render(<UploadVocabDialog folderId="folder-1" />);
+    await userEvent.click(screen.getByRole("button", { name: "Import file" }));
+
+    const mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    const slow = new File([xlsxBuffer([["word", "type", "meaning"], ["Dog", "noun", "A canine"]])], "a.xlsx", { type: mime });
+    const fast = new File([xlsxBuffer([["word", "type", "meaning"], ["Cat", "noun", "A feline"]])], "b.xlsx", { type: mime });
+    const slowBuffer = await slow.arrayBuffer();
+    let releaseSlow!: () => void;
+    slow.arrayBuffer = () =>
+      new Promise<ArrayBuffer>((resolve) => {
+        releaseSlow = () => resolve(slowBuffer);
+      });
+
+    const input = screen.getByLabelText("File") as HTMLInputElement;
+    fireEvent.change(input, { target: { files: [slow] } });
+    fireEvent.change(input, { target: { files: [fast] } });
+
+    expect(await screen.findByText("Cat")).toBeInTheDocument();
+    await screen.findByDisplayValue("Cats purr.");
+    releaseSlow();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect(screen.queryByText("Dog")).not.toBeInTheDocument();
+    expect(generateVocabExamplesAction).toHaveBeenCalledTimes(1);
   });
 });

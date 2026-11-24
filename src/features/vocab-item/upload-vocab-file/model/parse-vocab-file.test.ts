@@ -100,4 +100,23 @@ describe("parseVocabFile", () => {
     expect(parseVocabFile(buffer)).toEqual({ valid: [], invalid: [] });
     expect(parseVocabFile(bufferFromRows([]))).toEqual({ valid: [], invalid: [] });
   });
+
+  it("marks rows with over-long fields as invalid", () => {
+    const buffer = bufferFromRows([
+      ["word", "type", "meaning"],
+      ["a".repeat(201), "noun", "m"],
+      ["dog", "t".repeat(51), "m"],
+      ["cat", "noun", "m".repeat(501)],
+      ["ok", "noun", "fine"],
+    ]);
+
+    const { valid, invalid } = parseVocabFile(buffer);
+
+    expect(valid).toHaveLength(1);
+    expect(invalid).toEqual([
+      { row: 2, reason: "Word is too long (max 200)" },
+      { row: 3, reason: "Type is too long (max 50)" },
+      { row: 4, reason: "Meaning is too long (max 500)" },
+    ]);
+  });
 });

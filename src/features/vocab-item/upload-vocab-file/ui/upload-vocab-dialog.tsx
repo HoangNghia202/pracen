@@ -87,11 +87,15 @@ export function UploadVocabDialog({ folderId }: { folderId: string }) {
     if (!file) return;
     setError(null);
     reset();
+    const id = generationId.current;
 
     let parsed: ParseVocabFileResult;
     try {
-      parsed = parseVocabFile(await file.arrayBuffer());
+      const buffer = await file.arrayBuffer();
+      if (generationId.current !== id) return;
+      parsed = parseVocabFile(buffer);
     } catch {
+      if (generationId.current !== id) return;
       setError("Could not read this file. Please make sure it's a valid CSV or Excel file.");
       return;
     }
