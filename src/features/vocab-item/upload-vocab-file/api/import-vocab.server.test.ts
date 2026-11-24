@@ -18,8 +18,8 @@ describe("importVocabAction", () => {
     const result = await importVocabAction(
       folder.id,
       [
-        { word: "Dog", meaning: "A domesticated canine" },
-        { word: "Cat", meaning: "A domesticated feline" },
+        { word: "Dog", type: "noun", meaning: "A domesticated canine" },
+        { word: "Cat", type: "noun", meaning: "A domesticated feline" },
       ],
       db
     );
@@ -35,7 +35,7 @@ describe("importVocabAction", () => {
     const folder = await createFolder({ userId: owner.id, name: "Animals" }, db);
     vi.mocked(auth).mockResolvedValue({ user: { id: attacker.id } } as never);
 
-    const result = await importVocabAction(folder.id, [{ word: "Dog", meaning: "..." }], db);
+    const result = await importVocabAction(folder.id, [{ word: "Dog", type: "noun", meaning: "..." }], db);
 
     expect(result).toMatchObject({ ok: false });
     expect(await listVocabItemsByFolder(folder.id, db)).toEqual([]);
@@ -61,13 +61,57 @@ describe("importVocabAction", () => {
     const result = await importVocabAction(
       folder.id,
       [
-        { word: "Dog", meaning: "A domesticated canine" },
-        { word: "", meaning: "Missing a word" },
+        { word: "Dog", type: "noun", meaning: "A domesticated canine" },
+        { word: "", type: "noun", meaning: "Missing a word" },
       ],
       db
     );
 
     expect(result).toMatchObject({ ok: false });
+    expect(await listVocabItemsByFolder(folder.id, db)).toEqual([]);
+  });
+
+  it("persists the type of each imported row", async () => {
+    const db = await createTestDb();
+    const user = await createUser({ email: "owner@example.com", passwordHash: "hash" }, db);
+    const folder = await createFolder({ userId: user.id, name: "Animals" }, db);
+    vi.mocked(auth).mockResolvedValue({ user: { id: user.id } } as never);
+
+    await importVocabAction(
+      folder.id,
+      [{ word: "Run", type: "verb", meaning: "Move fast", example: "I run every day." }],
+      db
+    );
+
+    const [item] = await listVocabItemsByFolder(folder.id, db);
+    expect(item).toMatchObject({ word: "Run", type: "verb", example: "I run every day." });
+  });
+
+  it("rejects rows without a type", async () => {
+    const db = await createTestDb();
+    const user = await createUser({ email: "owner@example.com", passwordHash: "hash" }, db);
+    const folder = await createFolder({ userId: user.id, name: "Animals" }, db);
+    vi.mocked(auth).mockResolvedValue({ user: { id: user.id } } as never);
+
+    const result = await importVocabAction(
+      folder.id,
+      [{ word: "Dog", type: "", meaning: "A canine" }],
+      db
+    );
+
+    expect(result).toEqual({ ok: false, error: "Type is required" });
+  });
+
+  it("rejects more than 100 rows", async () => {
+    const db = await createTestDb();
+    const user = await createUser({ email: "owner@example.com", passwordHash: "hash" }, db);
+    const folder = await createFolder({ userId: user.id, name: "Animals" }, db);
+    vi.mocked(auth).mockResolvedValue({ user: { id: user.id } } as never);
+
+    const rows = Array.from({ length: 101 }, (_, i) => ({ word: `w${i}`, type: "noun", meaning: "m" }));
+    const result = await importVocabAction(folder.id, rows, db);
+
+    expect(result).toEqual({ ok: false, error: "Too many rows to import at once (max 100)" });
     expect(await listVocabItemsByFolder(folder.id, db)).toEqual([]);
   });
 

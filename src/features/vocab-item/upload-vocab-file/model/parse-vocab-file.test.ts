@@ -11,61 +11,92 @@ function bufferFromRows(rows: (string | number)[][]): ArrayBuffer {
 describe("parseVocabFile", () => {
   it("parses valid rows using header names, case-insensitively", () => {
     const buffer = bufferFromRows([
-      ["Word", "Meaning", "Example", "Part of Speech"],
-      ["Dog", "A domesticated canine", "The dog barks.", "noun"],
+      ["Word", "Type", "Meaning", "Example", "Part of Speech"],
+      ["Dog", "noun", "A domesticated canine", "The dog barks.", "noun"],
     ]);
 
     const { valid, invalid } = parseVocabFile(buffer);
 
     expect(invalid).toEqual([]);
     expect(valid).toEqual([
-      { word: "Dog", meaning: "A domesticated canine", example: "The dog barks.", partOfSpeech: "noun" },
+      {
+        word: "Dog",
+        type: "noun",
+        meaning: "A domesticated canine",
+        example: "The dog barks.",
+        partOfSpeech: "noun",
+      },
     ]);
   });
 
   it("treats example and part of speech as optional", () => {
     const buffer = bufferFromRows([
-      ["word", "meaning"],
-      ["Cat", "A domesticated feline"],
+      ["word", "type", "meaning"],
+      ["Cat", "noun", "A domesticated feline"],
     ]);
 
     const { valid, invalid } = parseVocabFile(buffer);
 
     expect(invalid).toEqual([]);
-    expect(valid).toEqual([{ word: "Cat", meaning: "A domesticated feline" }]);
+    expect(valid).toEqual([{ word: "Cat", type: "noun", meaning: "A domesticated feline" }]);
   });
 
-  it("reports rows missing a required word or meaning, without dropping valid rows around them", () => {
+  it("accepts any user-defined type text", () => {
     const buffer = bufferFromRows([
-      ["word", "meaning"],
-      ["Dog", "A domesticated canine"],
-      ["", "Missing word"],
-      ["Cat", ""],
+      ["word", "type", "meaning"],
+      ["give up", "phrasal verb", "Stop trying"],
+    ]);
+
+    expect(parseVocabFile(buffer).valid).toEqual([
+      { word: "give up", type: "phrasal verb", meaning: "Stop trying" },
+    ]);
+  });
+
+  it("reports rows missing a required word, type, or meaning, without dropping valid rows around them", () => {
+    const buffer = bufferFromRows([
+      ["word", "type", "meaning"],
+      ["Dog", "noun", "A domesticated canine"],
+      ["", "noun", "Missing word"],
+      ["Bird", "", "Missing type"],
+      ["Cat", "noun", ""],
     ]);
 
     const { valid, invalid } = parseVocabFile(buffer);
 
-    expect(valid).toEqual([{ word: "Dog", meaning: "A domesticated canine" }]);
+    expect(valid).toEqual([{ word: "Dog", type: "noun", meaning: "A domesticated canine" }]);
     expect(invalid).toEqual([
       { row: 3, reason: "Word is required" },
-      { row: 4, reason: "Meaning is required" },
+      { row: 4, reason: "Type is required" },
+      { row: 5, reason: "Meaning is required" },
     ]);
+  });
+
+  it("marks every row invalid when the Type column is absent", () => {
+    const buffer = bufferFromRows([
+      ["word", "meaning"],
+      ["Dog", "A domesticated canine"],
+    ]);
+
+    expect(parseVocabFile(buffer)).toEqual({
+      valid: [],
+      invalid: [{ row: 2, reason: "Type is required" }],
+    });
   });
 
   it("ignores extra unrecognized columns instead of erroring on them", () => {
     const buffer = bufferFromRows([
-      ["Word", "Meaning", "Notes", "Id"],
-      ["Dog", "A domesticated canine", "irrelevant", "42"],
+      ["Word", "Type", "Meaning", "Notes", "Id"],
+      ["Dog", "noun", "A domesticated canine", "irrelevant", "42"],
     ]);
 
     const { valid, invalid } = parseVocabFile(buffer);
 
     expect(invalid).toEqual([]);
-    expect(valid).toEqual([{ word: "Dog", meaning: "A domesticated canine" }]);
+    expect(valid).toEqual([{ word: "Dog", type: "noun", meaning: "A domesticated canine" }]);
   });
 
   it("returns no valid or invalid rows for a header-only or empty file", () => {
-    const buffer = bufferFromRows([["word", "meaning"]]);
+    const buffer = bufferFromRows([["word", "type", "meaning"]]);
     expect(parseVocabFile(buffer)).toEqual({ valid: [], invalid: [] });
     expect(parseVocabFile(bufferFromRows([]))).toEqual({ valid: [], invalid: [] });
   });
