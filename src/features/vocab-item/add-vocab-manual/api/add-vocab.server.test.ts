@@ -42,4 +42,17 @@ describe("addVocabManualAction", () => {
     expect(result).toMatchObject({ ok: false });
     expect(await listVocabItemsByFolder(folder.id, db)).toEqual([]);
   });
+
+  it("saves an optional type", async () => {
+    const db = await createTestDb();
+    const user = await createUser({ email: "owner@example.com", passwordHash: "hash" }, db);
+    const folder = await createFolder({ userId: user.id, name: "Animals" }, db);
+    vi.mocked(auth).mockResolvedValue({ user: { id: user.id } } as never);
+
+    await addVocabManualAction(folder.id, { word: "Dog", meaning: "A canine", type: "noun" }, db);
+    await addVocabManualAction(folder.id, { word: "Cat", meaning: "A feline", type: "" }, db);
+
+    const items = await listVocabItemsByFolder(folder.id, db);
+    expect(Object.fromEntries(items.map((i) => [i.word, i.type]))).toEqual({ Dog: "noun", Cat: null });
+  });
 });

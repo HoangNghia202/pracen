@@ -29,6 +29,7 @@ export function VocabTable({ items }: { items: VocabItem[] }) {
         <TableHeader>
           <TableRow className="hover:bg-muted">
             <TableHead>Word</TableHead>
+            <TableHead>Type</TableHead>
             <TableHead>Meaning</TableHead>
             <TableHead>Example</TableHead>
             <TableHead>Part of speech</TableHead>
@@ -39,6 +40,7 @@ export function VocabTable({ items }: { items: VocabItem[] }) {
           {items.map((item) => (
             <TableRow key={item.id}>
               <TableCell className="font-medium text-foreground">{item.word}</TableCell>
+              <TableCell className="text-muted-foreground">{item.type ?? "—"}</TableCell>
               <TableCell>{item.meaning}</TableCell>
               <TableCell className="text-muted-foreground">{item.example ?? "—"}</TableCell>
               <TableCell className="text-muted-foreground">{item.partOfSpeech ?? "—"}</TableCell>

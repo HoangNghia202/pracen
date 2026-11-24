@@ -39,6 +39,7 @@ export async function addVocabManualAction(
         meaning: parsed.data.meaning,
         example: parsed.data.example || undefined,
         partOfSpeech: parsed.data.partOfSpeech || undefined,
+        type: parsed.data.type || undefined,
       },
       dbInstance
     );

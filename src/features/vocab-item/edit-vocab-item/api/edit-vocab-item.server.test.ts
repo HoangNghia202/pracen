@@ -105,4 +105,18 @@ describe("editVocabItemAction", () => {
     const after = await getFolderById(folder.id, user.id, db);
     expect(after!.updatedAt.getTime()).toBeGreaterThan(before!.updatedAt.getTime());
   });
+
+  it("sets and clears type", async () => {
+    const db = await createTestDb();
+    const user = await createUser({ email: "owner@example.com", passwordHash: "hash" }, db);
+    const folder = await createFolder({ userId: user.id, name: "Animals" }, db);
+    const item = await createVocabItem({ folderId: folder.id, word: "Dog", meaning: "..." }, db);
+    vi.mocked(auth).mockResolvedValue({ user: { id: user.id } } as never);
+
+    await editVocabItemAction(item.id, { word: "Dog", meaning: "...", type: "noun" }, db);
+    expect((await getVocabItemById(item.id, db))?.type).toBe("noun");
+
+    await editVocabItemAction(item.id, { word: "Dog", meaning: "...", type: "" }, db);
+    expect((await getVocabItemById(item.id, db))?.type).toBeNull();
+  });
 });

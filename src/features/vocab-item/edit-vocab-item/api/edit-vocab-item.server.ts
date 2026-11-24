@@ -43,6 +43,7 @@ export async function editVocabItemAction(
         meaning: parsed.data.meaning,
         example: parsed.data.example || null,
         partOfSpeech: parsed.data.partOfSpeech || null,
+        type: parsed.data.type || null,
       },
       dbInstance
     );

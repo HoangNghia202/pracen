@@ -30,6 +30,7 @@ export function AddVocabDialog({ folderId }: { folderId: string }) {
       meaning: String(formData.get("meaning") ?? ""),
       example: String(formData.get("example") ?? ""),
       partOfSpeech: String(formData.get("partOfSpeech") ?? ""),
+      type: String(formData.get("type") ?? ""),
     };
 
     try {
@@ -67,6 +68,10 @@ export function AddVocabDialog({ folderId }: { folderId: string }) {
           <div className="flex flex-col gap-2">
             <Label htmlFor="meaning">Meaning</Label>
             <Input id="meaning" name="meaning" required />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="type">Type (optional)</Label>
+            <Input id="type" name="type" placeholder="noun, verb, idiom..." />
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="example">Example (optional)</Label>

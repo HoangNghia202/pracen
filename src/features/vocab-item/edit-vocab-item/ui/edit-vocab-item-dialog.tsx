@@ -31,6 +31,7 @@ export function EditVocabItemDialog({ item }: { item: VocabItem }) {
       meaning: String(formData.get("meaning") ?? ""),
       example: String(formData.get("example") ?? ""),
       partOfSpeech: String(formData.get("partOfSpeech") ?? ""),
+      type: String(formData.get("type") ?? ""),
     };
 
     try {
@@ -67,6 +68,10 @@ export function EditVocabItemDialog({ item }: { item: VocabItem }) {
           <div className="flex flex-col gap-2">
             <Label htmlFor="meaning">Meaning</Label>
             <Input id="meaning" name="meaning" defaultValue={item.meaning} required />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="type">Type (optional)</Label>
+            <Input id="type" name="type" defaultValue={item.type ?? ""} />
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="example">Example (optional)</Label>

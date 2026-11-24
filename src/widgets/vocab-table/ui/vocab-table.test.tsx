@@ -28,3 +28,9 @@ it("shows an empty state with no items", () => {
   render(<VocabTable items={[]} />);
   expect(screen.getByText("No words yet")).toBeInTheDocument();
 });
+
+it("shows the type column value", () => {
+  render(<VocabTable items={[{ ...item, type: "noun" }]} />);
+  expect(screen.getByRole("columnheader", { name: "Type" })).toBeInTheDocument();
+  expect(screen.getByText("noun")).toBeInTheDocument();
+});
